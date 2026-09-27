@@ -1,6 +1,6 @@
 #include "gimbal_motor.h"
 #include "DM_Motor.h"
-/*yawµç»ú*/
+/*yawç”µæœº*/
 Motor_DM_Born_Info_t Yaw_Born_Info =
 {
 	.stdId = 0x002,

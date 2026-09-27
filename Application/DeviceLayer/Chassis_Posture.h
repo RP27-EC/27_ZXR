@@ -8,7 +8,7 @@
 #define Degree_to_rad 0.017453f
 /* Exported types ------------------------------------------------------------*/
 
-/*µ×ÅÌÉÏ²ã»úÌå×ËÌ¬ĞÅÏ¢½á¹¹Ìå*/
+/*åº•ç›˜ä¸Šå±‚æœºä½“å§¿æ€ä¿¡æ¯ç»“æ„ä½“*/
 typedef struct Chassis_Posture_info_struct_t
 {
 	float pitch;
@@ -40,7 +40,7 @@ typedef struct Chassis_Posture_info_struct_t
 	float slope_yaw;
 }Chassis_Posture_info_t;
 
-/*µ×ÅÌÉÏ²ã»úÌå½á¹¹Ìå*/
+/*åº•ç›˜ä¸Šå±‚æœºä½“ç»“æ„ä½“*/
 typedef struct Chassis_Posture_struct_t
 {
 	Chassis_Posture_info_t *info;

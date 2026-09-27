@@ -4,14 +4,14 @@
 static void Code_Set_Command(Code_BRT_t* code, Code_BRT_Command_e command);
 static void Code_Send_data(Code_BRT_t* code);
 /**
-  * @brief          Ö÷¶¯¶ÁÈ¡±àÂëÆ÷Öµ
+  * @brief          ä¸»åŠ¨è¯»å–ç¼–ç å™¨å€¼
   * @param[in]      Code_BRT_t *code     
   * @retval         none
   */
 static void Code_Read_Angle(Code_BRT_t* code)
 {
 	static uint8_t over_time = 0;
-	/*Ö¸Áî·¢ËÍºó£¬µÈ´ı½ÓÊÕÖ¸ÁîÔÙ·¢ËÍ*/
+	/*æŒ‡ä»¤å‘é€åï¼Œç­‰å¾…æ¥æ”¶æŒ‡ä»¤å†å‘é€*/
 	if(code->tx_info->command_flag[Read_encoder] != 1)
 	{
 		Code_Set_Command(code, Read_encoder);
@@ -31,14 +31,14 @@ static void Code_Read_Angle(Code_BRT_t* code)
 }
 
 /**
-  * @brief          Ö÷¶¯¶ÁÈ¡±àÂëÆ÷½ÇËÙ¶ÈÖµ
+  * @brief          ä¸»åŠ¨è¯»å–ç¼–ç å™¨è§’é€Ÿåº¦å€¼
   * @param[in]      Code_BRT_t *code     
   * @retval         none
   */
 static void Code_Read_Speed(Code_BRT_t* code)
 {
 	static uint8_t over_time = 0;
-	/*Ö¸Áî·¢ËÍºó£¬µÈ´ı½ÓÊÕÖ¸ÁîÔÙ·¢ËÍ*/
+	/*æŒ‡ä»¤å‘é€åï¼Œç­‰å¾…æ¥æ”¶æŒ‡ä»¤å†å‘é€*/
 	if(code->tx_info->command_flag[Read_speed] != 1)
 	{
 		Code_Set_Command(code, Read_speed);
@@ -58,14 +58,14 @@ static void Code_Read_Speed(Code_BRT_t* code)
 }
 
 /**
-  * @brief          Ö÷¶¯¶ÁÈ¡ĞéÄâ¶àÈ¦Öµ
+  * @brief          ä¸»åŠ¨è¯»å–è™šæ‹Ÿå¤šåœˆå€¼
   * @param[in]      Code_BRT_t *code     
   * @retval         none
   */
 static void Code_Read_Sum_Angle(Code_BRT_t* code)
 {
 	static uint8_t over_time = 0;
-	/*Ö¸Áî·¢ËÍºó£¬µÈ´ı½ÓÊÕÖ¸ÁîÔÙ·¢ËÍ*/
+	/*æŒ‡ä»¤å‘é€åï¼Œç­‰å¾…æ¥æ”¶æŒ‡ä»¤å†å‘é€*/
 	if(code->tx_info->command_flag[Read_sum_encoder] != 1)
 	{
 		Code_Set_Command(code, Read_sum_encoder);
@@ -86,14 +86,14 @@ static void Code_Read_Sum_Angle(Code_BRT_t* code)
 
 
 /**
-  * @brief          Ö÷¶¯¶ÁÈ¡ĞéÄâÈ¦Êı
+  * @brief          ä¸»åŠ¨è¯»å–è™šæ‹Ÿåœˆæ•°
   * @param[in]      Code_BRT_t *code     
   * @retval         none
   */
 static void Code_Read_Turn(Code_BRT_t* code)
 {
 	static uint8_t over_time = 0;
-	/*Ö¸Áî·¢ËÍºó£¬µÈ´ı½ÓÊÕÖ¸ÁîÔÙ·¢ËÍ*/
+	/*æŒ‡ä»¤å‘é€åï¼Œç­‰å¾…æ¥æ”¶æŒ‡ä»¤å†å‘é€*/
 	if(code->tx_info->command_flag[Read_Turn] != 1)
 	{
 		Code_Set_Command(code, Read_Turn);
@@ -113,15 +113,15 @@ static void Code_Read_Turn(Code_BRT_t* code)
 }
 
 /**
-  * @brief          ÉèÖÃÖ÷¶¯»Ø´«Ê±¼ä
+  * @brief          è®¾ç½®ä¸»åŠ¨å›ä¼ æ—¶é—´
   * @param[in]      Code_BRT_t *code     
-  * @param[in]      uint16_t  Time(us)    ÊıÖµ·¶Î§£º50~65535
+  * @param[in]      uint16_t  Time(us)    æ•°å€¼èŒƒå›´ï¼š50~65535
   * @retval         none
   */
 static void Code_Set_Receive_Time(Code_BRT_t* code, uint16_t Time)
 {
 	static uint8_t over_time = 0;
-	/*Ö¸Áî·¢ËÍºó£¬µÈ´ı½ÓÊÕÖ¸ÁîÔÙ·¢ËÍ*/
+	/*æŒ‡ä»¤å‘é€åï¼Œç­‰å¾…æ¥æ”¶æŒ‡ä»¤å†å‘é€*/
 	if(code->tx_info->command_flag[Set_Receive_Time] == 0)
 	{
 		Code_Set_Command(code, Set_Receive_Time);
@@ -144,15 +144,15 @@ static void Code_Set_Receive_Time(Code_BRT_t* code, uint16_t Time)
 
 
 /**
-  * @brief          ÉèÖÃ±àÂëÆ÷ID
+  * @brief          è®¾ç½®ç¼–ç å™¨ID
   * @param[in]      Code_BRT_t *code     
-  * @param[in]      uint8_t  ID    ÊıÖµ·¶Î§£º1~255
+  * @param[in]      uint8_t  ID    æ•°å€¼èŒƒå›´ï¼š1~255
   * @retval         none
   */
 static void Code_Set_ID(Code_BRT_t* code, uint8_t id)
 {
 	static uint8_t over_time = 0;
-	/*Ö¸Áî·¢ËÍºó£¬µÈ´ı½ÓÊÕÖ¸ÁîÔÙ·¢ËÍ*/
+	/*æŒ‡ä»¤å‘é€åï¼Œç­‰å¾…æ¥æ”¶æŒ‡ä»¤å†å‘é€*/
 	if(code->tx_info->command_flag[Set_Id] == 0)
 	{
 		Code_Set_Command(code, Set_Id);
@@ -182,7 +182,7 @@ static void Code_Set_ID(Code_BRT_t* code, uint8_t id)
 }
 
 /**
-  * @brief          ÉèÖÃ±àÂëÆ÷canÍ¨Ñ¶²¨ÌØÂÊ
+  * @brief          è®¾ç½®ç¼–ç å™¨cané€šè®¯æ³¢ç‰¹ç‡
   * @param[in]      Code_BRT_t *code     
   * @param[in]      uint8_t  Baud    0:500K  1:1M  2:250K  3:125K  4:100K
   * @retval         none
@@ -190,7 +190,7 @@ static void Code_Set_ID(Code_BRT_t* code, uint8_t id)
 static void Code_Set_Baud(Code_BRT_t* code, uint8_t Baud)
 {
 	static uint8_t over_time = 0;
-	/*Ö¸Áî·¢ËÍºó£¬µÈ´ı½ÓÊÕÖ¸ÁîÔÙ·¢ËÍ*/
+	/*æŒ‡ä»¤å‘é€åï¼Œç­‰å¾…æ¥æ”¶æŒ‡ä»¤å†å‘é€*/
 	if(code->tx_info->command_flag[Set_Baud] == 0)
 	{
 		Code_Set_Command(code, Set_Baud);
@@ -211,14 +211,14 @@ static void Code_Set_Baud(Code_BRT_t* code, uint8_t Baud)
 }
 
 /**
-  * @brief          ÉèÖÃ±àÂëÆ÷Áãµã
+  * @brief          è®¾ç½®ç¼–ç å™¨é›¶ç‚¹
   * @param[in]      Code_BRT_t *code     
   * @retval         none
   */
 static void Code_Set_Zero_Point(Code_BRT_t* code)
 {
 	static uint8_t over_time = 0;
-	/*Ö¸Áî·¢ËÍºó£¬µÈ´ı½ÓÊÕÖ¸ÁîÔÙ·¢ËÍ*/
+	/*æŒ‡ä»¤å‘é€åï¼Œç­‰å¾…æ¥æ”¶æŒ‡ä»¤å†å‘é€*/
 	if(code->tx_info->command_flag[Set_Zero_Pole] == 0)
 	{
 		Code_Set_Command(code, Set_Zero_Pole);
@@ -238,14 +238,14 @@ static void Code_Set_Zero_Point(Code_BRT_t* code)
 }
 
 /**
-  * @brief          ÉèÖÃ±àÂëÆ÷ÖĞµã
+  * @brief          è®¾ç½®ç¼–ç å™¨ä¸­ç‚¹
   * @param[in]      Code_BRT_t *code     
   * @retval         none
   */
 static void Code_Set_Mid_Point(Code_BRT_t* code)
 {
 	static uint8_t over_time = 0;
-	/*Ö¸Áî·¢ËÍºó£¬µÈ´ı½ÓÊÕÖ¸ÁîÔÙ·¢ËÍ*/
+	/*æŒ‡ä»¤å‘é€åï¼Œç­‰å¾…æ¥æ”¶æŒ‡ä»¤å†å‘é€*/
 	if(code->tx_info->command_flag[Set_Mid_Pole] == 0)
 	{
 		Code_Set_Command(code, Set_Mid_Pole);
@@ -265,7 +265,7 @@ static void Code_Set_Mid_Point(Code_BRT_t* code)
 }
 
 /**
-  * @brief          ÉèÖÃ±àÂëÆ÷µ±Ç°Öµ
+  * @brief          è®¾ç½®ç¼–ç å™¨å½“å‰å€¼
   * @param[in]      Code_BRT_t *code 
   * @param[in]      uint32_t encoder
   * @retval         none
@@ -273,7 +273,7 @@ static void Code_Set_Mid_Point(Code_BRT_t* code)
 static void Code_Set_Num_Point(Code_BRT_t* code, uint16_t encoder)
 {
 	static uint8_t over_time = 0;
-	/*Ö¸Áî·¢ËÍºó£¬µÈ´ı½ÓÊÕÖ¸ÁîÔÙ·¢ËÍ*/
+	/*æŒ‡ä»¤å‘é€åï¼Œç­‰å¾…æ¥æ”¶æŒ‡ä»¤å†å‘é€*/
 	if(code->tx_info->command_flag[Set_Num_Pole] == 0)
 	{
 		Code_Set_Command(code, Set_Num_Pole);
@@ -295,15 +295,15 @@ static void Code_Set_Num_Point(Code_BRT_t* code, uint16_t encoder)
 }
 
 /**
-  * @brief          ÉèÖÃ±àÂëÆ÷Ä£Ê½£¨Ä£Ê½1Ä¿Ç°²»¿ÉÓÃ£©
+  * @brief          è®¾ç½®ç¼–ç å™¨æ¨¡å¼ï¼ˆæ¨¡å¼1ç›®å‰ä¸å¯ç”¨ï¼‰
   * @param[in]      Code_BRT_t *code     
-  * @param[in]      uint8_t  Mode    0:²éÑ¯  1:×Ô¶¯·µ»Ø±àÂëÆ÷½ÇËÙ¶ÈÖµ  2:×Ô¶¯·µ»Ø±àÂëÆ÷Öµ
+  * @param[in]      uint8_t  Mode    0:æŸ¥è¯¢  1:è‡ªåŠ¨è¿”å›ç¼–ç å™¨è§’é€Ÿåº¦å€¼  2:è‡ªåŠ¨è¿”å›ç¼–ç å™¨å€¼
   * @retval         none
   */
 static void Code_Set_Mode(Code_BRT_t* code, uint8_t Mode)
 {
 	static uint8_t over_time = 0;
-	/*Ö¸Áî·¢ËÍºó£¬µÈ´ı½ÓÊÕÖ¸ÁîÔÙ·¢ËÍ*/
+	/*æŒ‡ä»¤å‘é€åï¼Œç­‰å¾…æ¥æ”¶æŒ‡ä»¤å†å‘é€*/
 	if(code->tx_info->command_flag[Set_Code_Mode] == 0)
 	{
 		Code_Set_Command(code, Set_Code_Mode);
@@ -336,15 +336,15 @@ static void Code_Set_Mode(Code_BRT_t* code, uint8_t Mode)
 }
 
 /**
-  * @brief          ÉèÖÃ±àÂëÆ÷ÖµµİÔö·½Ïò
+  * @brief          è®¾ç½®ç¼–ç å™¨å€¼é€’å¢æ–¹å‘
   * @param[in]      Code_BRT_t *code  
-  * @param[in]      uint8_t  dire    0:Ë³Ê±Õë  1:ÄæÊ±Õë
+  * @param[in]      uint8_t  dire    0:é¡ºæ—¶é’ˆ  1:é€†æ—¶é’ˆ
   * @retval         none
   */
 static void Code_Set_Dire(Code_BRT_t* code, uint8_t dire)
 {
 	static uint8_t over_time = 0;
-	/*Ö¸Áî·¢ËÍºó£¬µÈ´ı½ÓÊÕÖ¸ÁîÔÙ·¢ËÍ*/
+	/*æŒ‡ä»¤å‘é€åï¼Œç­‰å¾…æ¥æ”¶æŒ‡ä»¤å†å‘é€*/
 	if(code->tx_info->command_flag[Set_Dire] == 0)
 	{
 		Code_Set_Command(code, Set_Dire);
@@ -364,7 +364,7 @@ static void Code_Set_Dire(Code_BRT_t* code, uint8_t dire)
 }
 
 /**
-  * @brief          ÉèÖÃ±àÂëÆ÷½ÇËÙ¶È²ÉÑùËÙÂÊ
+  * @brief          è®¾ç½®ç¼–ç å™¨è§’é€Ÿåº¦é‡‡æ ·é€Ÿç‡
   * @param[in]      Code_BRT_t *code  
   * @param[in]      uint16_t  time    0~65535
   * @retval         none
@@ -372,7 +372,7 @@ static void Code_Set_Dire(Code_BRT_t* code, uint8_t dire)
 static void Code_Set_Sample_Time(Code_BRT_t* code, uint16_t time)
 {
 	static uint8_t over_time = 0;
-	/*Ö¸Áî·¢ËÍºó£¬µÈ´ı½ÓÊÕÖ¸ÁîÔÙ·¢ËÍ*/
+	/*æŒ‡ä»¤å‘é€åï¼Œç­‰å¾…æ¥æ”¶æŒ‡ä»¤å†å‘é€*/
 	if(code->tx_info->command_flag[Set_Sample_Time] == 0)
 	{
 		Code_Set_Command(code, Set_Sample_Time);
@@ -393,7 +393,7 @@ static void Code_Set_Sample_Time(Code_BRT_t* code, uint16_t time)
 }
 
 /**
-  * @brief          ·¢ËÍÊı¾İ
+  * @brief          å‘é€æ•°æ®
   * @param[in]      Code_BRT_t *code     
   * @retval         none
   */
@@ -405,7 +405,7 @@ static void Code_Send_data(Code_BRT_t* code)
 
 
 /**
-  * @brief          ±àÂëÆ÷Öµ¸üĞÂ
+  * @brief          ç¼–ç å™¨å€¼æ›´æ–°
   * @param[in]      Code_BRT_t *code     
   * @retval         none
   */
@@ -460,9 +460,9 @@ static void Code_Update(Code_BRT_t* code, uint8_t *rxBuf)
 }
 
 /**
- * @brief  ±àÂëÆ÷ĞÄÌøÊ§Áª¼ì²â
+ * @brief  ç¼–ç å™¨å¿ƒè·³å¤±è”æ£€æµ‹
  * @param  Code_BRT_t *code 
- * @retval ÎŞ
+ * @retval æ— 
  */
 static void BRT_Code_Heart_Beat(Code_BRT_t *code)
 {
@@ -481,9 +481,9 @@ static void BRT_Code_Heart_Beat(Code_BRT_t *code)
 }
 
 /**
- * @brief  ±àÂëÆ÷³õÊ¼»¯
+ * @brief  ç¼–ç å™¨åˆå§‹åŒ–
  * @param  Code_BRT_t *code 
- * @retval ÎŞ
+ * @retval æ— 
  */
 void BRT_Code_Init(Code_BRT_t* code)
 { 
@@ -507,9 +507,9 @@ void BRT_Code_Init(Code_BRT_t* code)
 
 
 
-/*---------------------¹¤¾ßº¯Êı----------------------*/
+/*---------------------å·¥å…·å‡½æ•°----------------------*/
 /**
-  * @brief          ¸ù¾İÖ¸ÁîÉèÖÃ·¢ËÍÊı×é
+  * @brief          æ ¹æ®æŒ‡ä»¤è®¾ç½®å‘é€æ•°ç»„
   * @param[in]      Code_BRT_t *code   
   * @param[in]      Code_BRT_Command_e command 
   * @retval         none

@@ -11,7 +11,7 @@ buzzer_t buzzer={
 /* Private macro -------------------------------------------------------------*/
 
 /**
- * @brief ³õÊ¼»¯²ÎÊı
+ * @brief åˆå§‹åŒ–å‚æ•°
  */
 void Buzzer_init(buzzer_t* buzzer)
 {
@@ -25,7 +25,7 @@ void Buzzer_init(buzzer_t* buzzer)
 	buzzer->config.max_volume=100.f;
 	buzzer->config.min_volume=0.f;
 	
-	// Æô¶¯ PWM Êä³ö£¬³õÊ¼Õ¼¿Õ±ÈÎª 0£¨²»·¢Éù£©
+	// å¯åŠ¨ PWM è¾“å‡ºï¼Œåˆå§‹å ç©ºæ¯”ä¸º 0ï¼ˆä¸å‘å£°ï¼‰
 	HAL_TIM_PWM_Start(buzzer->config.tim, buzzer->config.channel);
     __HAL_TIM_SET_COMPARE(buzzer->config.tim, buzzer->config.channel, 0);
 
@@ -33,49 +33,49 @@ void Buzzer_init(buzzer_t* buzzer)
 
 
 /**
- * @brief ¶¯Ì¬¼ÆËã×î¼Ñ·ÖÆµÏµÊı£¨È·±£ ARR ¡Ü max_tim_arr£©
- * @return ARR£¨0~65535£©
+ * @brief åŠ¨æ€è®¡ç®—æœ€ä½³åˆ†é¢‘ç³»æ•°ï¼ˆç¡®ä¿ ARR â‰¤ max_tim_arrï¼‰
+ * @return ARRï¼ˆ0~65535ï¼‰
  */
 static uint16_t Buzzer_Calc_Optimal_Presc(buzzer_t* buzzer, float buzzer_freq)
 {
     if (buzzer_freq <= 0) {
-        return 0;  // ÆµÂÊ·Ç·¨£¬·µ»ØÄ¬ÈÏ·ÖÆµÏµÊı
+        return 0;  // é¢‘ç‡éæ³•ï¼Œè¿”å›é»˜è®¤åˆ†é¢‘ç³»æ•°
     }
 
     uint32_t tim_freq = buzzer->config.tim_freq;
     uint16_t max_arr = buzzer->config.max_tim_arr;
 
-    // ¹«Ê½ÍÆµ¼£ºtim_presc = (tim_freq / (buzzer_freq * (max_arr + 1))) - 1
-    // ´Ë´¦ÏòÉÏÈ¡Õû£¬½«"-1"ÉáÈ¥£¬Ïàµ±ÓÚ·ÖÆµÔö¼Ó
+    // å…¬å¼æ¨å¯¼ï¼štim_presc = (tim_freq / (buzzer_freq * (max_arr + 1))) - 1
+    // æ­¤å¤„å‘ä¸Šå–æ•´ï¼Œå°†"-1"èˆå»ï¼Œç›¸å½“äºåˆ†é¢‘å¢åŠ 
     float presc_float = (tim_freq / (buzzer_freq * (max_arr + 1))) ;
 
-    // ÏŞÖÆ·ÖÆµÏµÊı·¶Î§£¨PSC ÊÇ 16 Î»¼Ä´æÆ÷£¬0~65535£©
+    // é™åˆ¶åˆ†é¢‘ç³»æ•°èŒƒå›´ï¼ˆPSC æ˜¯ 16 ä½å¯„å­˜å™¨ï¼Œ0~65535ï¼‰
     uint16_t presc = (uint16_t)constrain(presc_float, 0.0f, 65535.0f);
 
     return presc;
 }
 
 /**
- * @brief ÊäÈëÆµÂÊ¼ÆËãARR
+ * @brief è¾“å…¥é¢‘ç‡è®¡ç®—ARR
  */
 static uint16_t Buzzer_Calc_ARR(buzzer_t* buzzer)
 {
     if (buzzer->base_info.input_info.freq <= 0) {
-        return 0; // ÆµÂÊ·Ç·¨£¬·µ»Ø0
+        return 0; // é¢‘ç‡éæ³•ï¼Œè¿”å›0
     }
 
-    // ¼ÆËãÔ­Ê¼ARRÖµ
+    // è®¡ç®—åŸå§‹ARRå€¼
 	float arr_float= buzzer->config.tim_freq/
 					(buzzer->base_info.input_info.freq)/
 					(buzzer->base_info.tim_presc+1.f)-1.f;
 	buzzer->base_info.ARR_raw=arr_float;
-	// ÏŞÖÆARR·¶Î§£¬±ÜÃâÒì³£Öµ
+	// é™åˆ¶ARRèŒƒå›´ï¼Œé¿å…å¼‚å¸¸å€¼
     return (uint16_t)constrain(arr_float, 0.0f, (float)buzzer->config.max_tim_arr);
 
 }
 
 /**
- * @brief ÊäÈëÕ¼¿Õ±È¡¢ARR¼ÆËãCCR
+ * @brief è¾“å…¥å ç©ºæ¯”ã€ARRè®¡ç®—CCR
  */
 static uint16_t Buzzer_Calc_CCR(buzzer_t* buzzer)
 {
@@ -86,7 +86,7 @@ static uint16_t Buzzer_Calc_CCR(buzzer_t* buzzer)
 }
 
 /**
- * @brief ´ÓÒôÁ¿volume×ª»»µ½Õ¼¿Õ±Èduty
+ * @brief ä»éŸ³é‡volumeè½¬æ¢åˆ°å ç©ºæ¯”duty
  */
 static float Buzzer_Volume_to_Duty(buzzer_t* buzzer,float volume)
 {
@@ -96,7 +96,7 @@ static float Buzzer_Volume_to_Duty(buzzer_t* buzzer,float volume)
 }
 
 /**
- * @brief Buzzer¸øarr¡¢ccr¸ºÖµ
+ * @brief Buzzerç»™arrã€ccrè´Ÿå€¼
  */
 void Buzzer_Work(buzzer_t* buzzer)
 {
@@ -105,7 +105,7 @@ void Buzzer_Work(buzzer_t* buzzer)
     float target_volume = buzzer->base_info.input_info.volume;
 
     if (target_freq <= 0 || target_volume <= buzzer->config.min_volume) {
-        __HAL_TIM_SET_COMPARE(&htim12, TIM_CHANNEL_2, 0); // CCR=0£¬¹Ø±ÕÊä³ö
+        __HAL_TIM_SET_COMPARE(&htim12, TIM_CHANNEL_2, 0); // CCR=0ï¼Œå…³é—­è¾“å‡º
         return;
     }
     buzzer->base_info.tim_presc = Buzzer_Calc_Optimal_Presc(buzzer, target_freq);
@@ -114,9 +114,9 @@ void Buzzer_Work(buzzer_t* buzzer)
 
     buzzer->base_info.CCR = Buzzer_Calc_CCR(buzzer);
 
-    __HAL_TIM_PRESCALER(buzzer->config.tim, 	 buzzer->base_info.tim_presc);  // ÏÈÉè·ÖÆµ£¨ÆµÂÊÏà¹Ø£©
-    __HAL_TIM_SET_AUTORELOAD(buzzer->config.tim, buzzer->base_info.ARR);   // ÔÙÉèARR£¨ÆµÂÊÏà¹Ø£©
-    __HAL_TIM_SET_COMPARE(buzzer->config.tim,buzzer->config.channel , buzzer->base_info.CCR); // ×îºóÉèCCR£¨ÒôÁ¿Ïà¹Ø£©
+    __HAL_TIM_PRESCALER(buzzer->config.tim, 	 buzzer->base_info.tim_presc);  // å…ˆè®¾åˆ†é¢‘ï¼ˆé¢‘ç‡ç›¸å…³ï¼‰
+    __HAL_TIM_SET_AUTORELOAD(buzzer->config.tim, buzzer->base_info.ARR);   // å†è®¾ARRï¼ˆé¢‘ç‡ç›¸å…³ï¼‰
+    __HAL_TIM_SET_COMPARE(buzzer->config.tim,buzzer->config.channel , buzzer->base_info.CCR); // æœ€åè®¾CCRï¼ˆéŸ³é‡ç›¸å…³ï¼‰
     
 
 }

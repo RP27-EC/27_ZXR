@@ -19,7 +19,7 @@ My_Judge_t My_Judge =
 
 
 /**
-  * @brief  ²ÃÅĞÏµÍ³³õÊ¼»¯
+  * @brief  è£åˆ¤ç³»ç»Ÿåˆå§‹åŒ–
   * @param  My_Judge_t * my_judge
   * @retval None
   */
@@ -30,7 +30,7 @@ void My_Judge_Init()
 }
 
 /**
-  * @brief  ²ÃÅĞÏµÍ³ÊµÊ±ÈÎÎñ£¬¼ì²âÀëÏßÓë×´Ì¬¸üĞÂ
+  * @brief  è£åˆ¤ç³»ç»Ÿå®æ—¶ä»»åŠ¡ï¼Œæ£€æµ‹ç¦»çº¿ä¸çŠ¶æ€æ›´æ–°
   * @param  My_Judge_t * my_judge
   * @retval None
   */
@@ -46,7 +46,7 @@ void My_Judge_Realtime_Task(My_Judge_t* my_judge)
 }
 
 /**
-  * @brief  ²ÃÅĞÏµÍ³Êı¾İ·ÖÎöºó¸üĞÂ×´Ì¬
+  * @brief  è£åˆ¤ç³»ç»Ÿæ•°æ®åˆ†æåæ›´æ–°çŠ¶æ€
   * @param  My_Judge_t * my_judge
   * @retval None
   */

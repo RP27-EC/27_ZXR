@@ -3,47 +3,47 @@
 
 #define OFF_GROUND_TEST 0
 
-#define TIME_STEP			0.001f//ÈÎÎñÔËĞĞÖÜÆÚ£¬µ¥Î»£ºs
+#define TIME_STEP			0.001f//ä»»åŠ¡è¿è¡Œå‘¨æœŸï¼Œå•ä½ï¼šs
 
-#define WHEEL_RADIUS  0.0515f//Çı¶¯ÂÖ°ë¾¶£¬µ¥Î»£ºm
+#define WHEEL_RADIUS  0.0515f//é©±åŠ¨è½®åŠå¾„ï¼Œå•ä½ï¼šm
 
-#define WHEEL_REDUCT_RATIO        (7.f/1.f)//µç»úµ½ÂÖì±µÄ¼õËÙ±È
-//Õû³µ³¤¶È
+#define WHEEL_REDUCT_RATIO        (7.f/1.f)//ç”µæœºåˆ°è½®æ¯‚çš„å‡é€Ÿæ¯”
+//æ•´è½¦é•¿åº¦
 #define Car_Length 0.338f
-//Õû³µ¿í¶È
+//æ•´è½¦å®½åº¦
 #define Car_Width 0.3f
-//Õû³µĞı×ª°ë¾¶
+//æ•´è½¦æ—‹è½¬åŠå¾„
 #define Rl 0.2259668f
-//Õû³µĞı×ª¼Ğ½Ç£¨0~PI/2)
+//æ•´è½¦æ—‹è½¬å¤¹è§’ï¼ˆ0~PI/2)
 #define theta_Rl 0.7259073169f
-//³µÌåÔË¶¯×î´óËÙ¶È
-#define MAX_SPEED           2.5f    //µ¥Î»£ºm/s
-//³µÌå×ªÏòÔË¶¯×î´óËÙ¶È
-#define MAX_SPIN_SPEED           13.0f    //µ¥Î»£ºrad/s
-//³µÌåÖĞĞÄÀëµØ¸ß¶È
-#define GRAVITY_HIGHT           0.18f    //µ¥Î»£ºm
-//È«³µÖØÁ¿
-#define CAR_GRAVITY           196.f    //µ¥Î»£ºN
+//è½¦ä½“è¿åŠ¨æœ€å¤§é€Ÿåº¦
+#define MAX_SPEED           2.5f    //å•ä½ï¼šm/s
+//è½¦ä½“è½¬å‘è¿åŠ¨æœ€å¤§é€Ÿåº¦
+#define MAX_SPIN_SPEED           13.0f    //å•ä½ï¼šrad/s
+//è½¦ä½“ä¸­å¿ƒç¦»åœ°é«˜åº¦
+#define GRAVITY_HIGHT           0.18f    //å•ä½ï¼šm
+//å…¨è½¦é‡é‡
+#define CAR_GRAVITY           196.f    //å•ä½ï¼šN
 
-/*µç»ú·½ÏòÓë¹éÎ»Ïà¹Ø*/
-//¶æÏòµç»úµÄÁãµã
+/*ç”µæœºæ–¹å‘ä¸å½’ä½ç›¸å…³*/
+//èˆµå‘ç”µæœºçš„é›¶ç‚¹
 #define L_F_ZeroPoint    32768
 #define L_B_ZeroPoint    32768
 #define R_B_ZeroPoint    32768
 #define R_F_ZeroPoint    32768
 
-//º½Ïòµç»úÕı·½Ïò
+//èˆªå‘ç”µæœºæ­£æ–¹å‘
 #define L_F_Direction   1
 #define R_F_Direction   -1
 #define R_B_Direction   -1
 #define L_B_Direction   1
 
-/*Ğ¶Á¦×èÄáÊ±¼äÓë×èÄáÏµÊı*/
-#define DAMPING_DELAY_MAX_CNT     3000   //×èÄá³ÖĞøÊ±¼ä2.5s
+/*å¸åŠ›é˜»å°¼æ—¶é—´ä¸é˜»å°¼ç³»æ•°*/
+#define DAMPING_DELAY_MAX_CNT     3000   //é˜»å°¼æŒç»­æ—¶é—´2.5s
 #define Wheel_Damping_Coefficient 0.005f //
 #define Sd_Damping_Coefficient    0.002f
 
-#define SD_POS_FIX_TOR_K			(30.f)   //¹Ø½ÚÏŞÎ»Á¦¾Ø²¹³¥ÏµÊı 10¶È1N
+#define SD_POS_FIX_TOR_K			(30.f)   //å…³èŠ‚é™ä½åŠ›çŸ©è¡¥å¿ç³»æ•° 10åº¦1N
 
 #define DISTANCE_ERR_MAX      0.55f
 

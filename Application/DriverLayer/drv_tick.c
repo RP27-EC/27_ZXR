@@ -9,11 +9,11 @@
  * Copyright 2020 RobotPilots
  * 
  * @note
- * Ê¹ÓÃcubemxÉú³ÉFREERTOSºó»á½¨Òé½«SYSµÄÊ±»ùÇĞ»»³É³ıSysTickÖ®ÍâµÄ¶¨Ê±Æ÷
- * ´Ó¶øÏµÍ³»á´æÔÚÁ½Ì×Ê±»ù£¬¢ÙÓÃÓÚRTOSµÄSysTick ¢ÚÓÃÓÚHALµÄHalTick
- * SysTick Ê¹ÓÃcortex-m4ÄÚºËµÄSysTick (SysTick->VAL»áÔÚÆô¶¯ÈÎÎñµ÷¶ÈÆ÷Ö®ºó²Å¸üĞÂ)
- * HalTick ÔÚ±¾¹¤³ÌÀïÃæÊ¹ÓÃTIM2 (TIM2->CNT¿ÉÌá¹©Î¢Ãî¼¶ÑÓÊ±)
- * # delay_us ºÍ delay_ms ²»»áÒıÆğÈÎÎñµ÷¶È(×èÈûĞÍ)
+ * ä½¿ç”¨cubemxç”ŸæˆFREERTOSåä¼šå»ºè®®å°†SYSçš„æ—¶åŸºåˆ‡æ¢æˆé™¤SysTickä¹‹å¤–çš„å®šæ—¶å™¨
+ * ä»è€Œç³»ç»Ÿä¼šå­˜åœ¨ä¸¤å¥—æ—¶åŸºï¼Œâ‘ ç”¨äºRTOSçš„SysTick â‘¡ç”¨äºHALçš„HalTick
+ * SysTick ä½¿ç”¨cortex-m4å†…æ ¸çš„SysTick (SysTick->VALä¼šåœ¨å¯åŠ¨ä»»åŠ¡è°ƒåº¦å™¨ä¹‹åæ‰æ›´æ–°)
+ * HalTick åœ¨æœ¬å·¥ç¨‹é‡Œé¢ä½¿ç”¨TIM2 (TIM2->CNTå¯æä¾›å¾®å¦™çº§å»¶æ—¶)
+ * # delay_us å’Œ delay_ms ä¸ä¼šå¼•èµ·ä»»åŠ¡è°ƒåº¦(é˜»å¡å‹)
  * 
  * @Version     V1.0
  * @date        15-September-2020
@@ -32,16 +32,16 @@ uint32_t haltick = 0;
 /* Private functions ---------------------------------------------------------*/
 /* Exported functions --------------------------------------------------------*/
 /**
- * @brief  »ñÈ¡µ±Ç°Ê±¼ä
+ * @brief  è·å–å½“å‰æ—¶é—´
  * @param  None
- * @retval µ±Ç°Ê±¼ä
+ * @retval å½“å‰æ—¶é—´
  */
 uint32_t micros(void)
 {
 	register uint32_t ms, us;
 	
 	ms = HAL_GetTick();
-	/* Ñ¡ÓÃ¶¨Ê±Æ÷2×÷ÎªHALÊ±»ùµÄTimeBase */
+	/* é€‰ç”¨å®šæ—¶å™¨2ä½œä¸ºHALæ—¶åŸºçš„TimeBase */
 	/* Freq:1MHz => 1Tick = 1us */
 	/* Period:1ms */
 	us = TIM2->CNT;
@@ -66,21 +66,21 @@ void delay_ms(uint32_t ms)
 
 /* Define Exported Functions ---------------------------------------------------------------------------------------------------------------------------------------- */
 /*!
- * @usage: ¿ªÆôDWTÄ£¿é
+ * @usage: å¼€å¯DWTæ¨¡å—
  */
 void DWT_Init(void)
 {
     if (!(CoreDebug->DEMCR & CoreDebug_DEMCR_TRCENA_Msk))
     {
-        CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk; // ÆôÓÃ¸ú×Ù¹¦ÄÜ
+        CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk; // å¯ç”¨è·Ÿè¸ªåŠŸèƒ½
     }
     
-    DWT->CYCCNT = 0;                        // ÇåÁãÖÜÆÚ¼ÆÊıÆ÷
-    DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk;    // ÆôÓÃÖÜÆÚ¼ÆÊıÆ÷
+    DWT->CYCCNT = 0;                        // æ¸…é›¶å‘¨æœŸè®¡æ•°å™¨
+    DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk;    // å¯ç”¨å‘¨æœŸè®¡æ•°å™¨
 }
 
 /*!
- * @usage: »ñµÃÊ±ÖÓÖÜÆÚÊı
+ * @usage: è·å¾—æ—¶é’Ÿå‘¨æœŸæ•°
  */
 uint32_t DWT_GetCycleCount(void)
 {

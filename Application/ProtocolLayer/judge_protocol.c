@@ -45,7 +45,7 @@ void judge_recive(uint8_t *rxBuf)
 			}
 			memcpy(&drv_judge_info.frame_tail, rxBuf + 5 + 2 + drv_judge_info.frame_header->data_length, 2);
 			
-			/* 如果一个数据包出现了多帧数据就再次读取 */
+			/* 濡傛灉涓�涓暟鎹寘鍑虹幇浜嗗甯ф暟鎹氨鍐嶆璇诲彇 */
 			if(rxBuf[frame_length] == 0xA5)
 			{
 				judge_recive( &rxBuf[frame_length] );

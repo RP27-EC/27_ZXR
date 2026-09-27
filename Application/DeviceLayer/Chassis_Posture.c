@@ -13,7 +13,7 @@ static void Chassis_Posture_Update(Chassis_Posture_t* My_Chassis_Posture)
 {
 	Chassis_Posture_info_t* info = My_Chassis_Posture->info;
 	
-	//½Ç¶È¸üÐÂ
+	//è§’åº¦æ›´æ–°
 	if(imu_sensor.info->base_info.roll > 0)
 	{
 		info->pitch = imu_sensor.info->base_info.roll * Degree_to_rad - PI;
@@ -29,44 +29,44 @@ static void Chassis_Posture_Update(Chassis_Posture_t* My_Chassis_Posture)
 
 	info->yaw = imu_sensor.info->base_info.yaw * Degree_to_rad;
 	
-	//½ÇËÙ¶È¸üÐÂ
+	//è§’é€Ÿåº¦æ›´æ–°
 	info->roll_v = imu_sensor.info->base_info.ave_rate_pitch * Degree_to_rad;
 	info->pitch_v = -imu_sensor.info->base_info.ave_rate_roll * Degree_to_rad;
 	info->yaw_v = -imu_sensor.info->base_info.ave_rate_yaw * Degree_to_rad;
 	
-	//¼ÓËÙ¶È¸üÐÂ
+	//åŠ é€Ÿåº¦æ›´æ–°
 	info->a_x = imu_sensor.info->raw_info.acc_y;
 	info->a_y = imu_sensor.info->raw_info.acc_x;
 	info->a_z = imu_sensor.info->raw_info.acc_z;
 	
-	//ÊÀ½ç¼ÓËÙ¶È¸üÐÂ
+	//ä¸–ç•ŒåŠ é€Ÿåº¦æ›´æ–°
 	info->x_world = imu_sensor.info->base_info.accy;
 	info->y_world = imu_sensor.info->base_info.accx;
 	info->z_world = imu_sensor.info->base_info.accz;
 	
-	//Çó½âÐ±ÆÂ½Ç¶ÈÐÅÏ¢£¬ÓÃÓÚÇ°À¡¼ÆËã
+	//æ±‚è§£æ–œå¡è§’åº¦ä¿¡æ¯ï¼Œç”¨äºŽå‰é¦ˆè®¡ç®—
 	Chassis_Slope_Update(My_Chassis_Posture, info->yaw, info->pitch, info->roll);
 }
 float test_yaw;
 /**
-  * @brief  Çó½âµ×ÅÌËùÔÚÐ±ÆÂµÄpitch½ÇºÍyaw½Ç
+  * @brief  æ±‚è§£åº•ç›˜æ‰€åœ¨æ–œå¡çš„pitchè§’å’Œyawè§’
   * @param  Chassis_Posture_t* My_Chassis_Posture
   * @retval None
   */
 static void Chassis_Slope_Update(Chassis_Posture_t* My_Chassis_Posture, float yaw, float pitch, float roll)
 {
-	//Çóµ×ÅÌÔÚÊÀ½çÏµÏÂµÄzÖá×ø±ê
+	//æ±‚åº•ç›˜åœ¨ä¸–ç•Œç³»ä¸‹çš„zè½´åæ ‡
 	float z_world[3];
 	z_world[0] = arm_sin_f32(yaw)*arm_sin_f32(roll) + arm_cos_f32(yaw)*arm_sin_f32(pitch)*arm_cos_f32(roll);
 	z_world[1] = -arm_cos_f32(yaw)*arm_sin_f32(roll) + arm_sin_f32(yaw)*arm_sin_f32(pitch)*arm_cos_f32(roll);
 	z_world[2] = arm_cos_f32(pitch)*arm_cos_f32(roll);
 	
-	//ÇóÐ±ÆÂµÄpitch½Ç
+	//æ±‚æ–œå¡çš„pitchè§’
 	float temp;
 	arm_sqrt_f32(z_world[0]*z_world[0]+z_world[1]*z_world[1], &temp);
 	arm_atan2_f32(temp, z_world[2], &My_Chassis_Posture->info->slope_pitch);
 	
-	//ÇóÐ±ÆÂµÄyaw½Ç
+	//æ±‚æ–œå¡çš„yawè§’
 	float sin_yaw, cos_yaw;
 	if(My_Chassis_Posture->info->slope_pitch > 0.08f)
 	{

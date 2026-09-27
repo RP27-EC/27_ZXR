@@ -3,21 +3,21 @@
 
 void single_pid_ctrl(pid_ctrl_t *pid)
 {
-    // ±£´æÎó²îÖµ(ĞèÒªÔÚÍâÃæ×ÔĞĞ¼ÆËãÎó²î)
+    // ä¿å­˜è¯¯å·®å€¼(éœ€è¦åœ¨å¤–é¢è‡ªè¡Œè®¡ç®—è¯¯å·®)
 //		pid->err = pid->target - pid->measure;
-    // »ı·Ö
+    // ç§¯åˆ†
     pid->integral += pid->err;
     pid->integral = constrain(pid->integral, -pid->integral_max, +pid->integral_max);
-    // p i d Êä³öÏî¼ÆËã
+    // p i d è¾“å‡ºé¡¹è®¡ç®—
     pid->pout = pid->kp * pid->err;
     pid->iout = pid->ki * pid->integral;
     pid->dout = pid->kd * (pid->err - pid->last_err);
-		// Î¢·ÖµÍÍ¨ÂË²¨
+		// å¾®åˆ†ä½é€šæ»¤æ³¢
 		pid->dout = pid->a * pid->dout + (1.f - pid->a) * pid->last_dout;
-    // ÀÛ¼ÓpidÊä³öÖµ
+    // ç´¯åŠ pidè¾“å‡ºå€¼
     pid->out = pid->pout + pid->iout + pid->dout;
     pid->out = constrain(pid->out, -pid->out_max, pid->out_max);
-    // ¼ÇÂ¼ÉÏ´ÎÎó²îÖµ
+    // è®°å½•ä¸Šæ¬¡è¯¯å·®å€¼
     pid->last_err = pid->err;
 }
 
@@ -26,13 +26,13 @@ void pid_err_cal(pid_ctrl_t *pid)
 	pid->err = pid->target - pid->measure;
 }
 
-/*ÀëÏß×´Ì¬ÏÂ¶Ô»ı·ÖÇåÁã*/
+/*ç¦»çº¿çŠ¶æ€ä¸‹å¯¹ç§¯åˆ†æ¸…é›¶*/
 void pid_clear(pid_ctrl_t *pid)
 {
 	pid->integral = 0;
 }
 
-//pidÍâ²¿µ÷ÊÔ´°¿Ú
+//pidå¤–éƒ¨è°ƒè¯•çª—å£
 void pid_watch(pid_ctrl_t *pid1, pid_ctrl_t *pid2, pid_watch_t * watch)
 {
 	watch->measure1 = pid1->measure;

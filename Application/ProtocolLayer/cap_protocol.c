@@ -58,7 +58,7 @@ float int16_to_float(int16_t a, int16_t a_max, int16_t a_min, float b_max, float
     int32_t a_32 = a, a_max_32 = a_max, a_min_32 = a_min;
     int32_t diff_a = a_max_32 - a_min_32;
     
-    if (diff_a == 0) return (b_max + b_min) / 2.0f; // ´¦Àí³ıÁã
+    if (diff_a == 0) return (b_max + b_min) / 2.0f; // å¤„ç†é™¤é›¶
     
     float ratio = (float)(a_32 - a_min_32) / (float)diff_a;
     return ratio * (b_max - b_min) + b_min;
@@ -66,16 +66,16 @@ float int16_to_float(int16_t a, int16_t a_max, int16_t a_min, float b_max, float
 
 int16_t float_to_int16(float b, float b_max, float b_min, int16_t a_max, int16_t a_min)
 {
-    // ´¦Àí³ıÁãºÍÎŞĞ§ÊäÈë
+    // å¤„ç†é™¤é›¶å’Œæ— æ•ˆè¾“å…¥
     if (b_max == b_min) return (int16_t)((a_max + a_min) / 2);
     
-    // ¼ÆËã±ÈÀı²¢Ó³Éäµ½ÕûÊı·¶Î§
+    // è®¡ç®—æ¯”ä¾‹å¹¶æ˜ å°„åˆ°æ•´æ•°èŒƒå›´
     float ratio = (b - b_min) / (b_max - b_min);
     
-    // ÌáÉı¼ÆËã·¶Î§±ÜÃâÒç³ö
-    int32_t a = (int32_t)(ratio * (a_max - a_min) + a_min + 0.5f); // ËÄÉáÎåÈë
+    // æå‡è®¡ç®—èŒƒå›´é¿å…æº¢å‡º
+    int32_t a = (int32_t)(ratio * (a_max - a_min) + a_min + 0.5f); // å››èˆäº”å…¥
     
-    // Ç¯Î»µ½Ä¿±ê·¶Î§
+    // é’³ä½åˆ°ç›®æ ‡èŒƒå›´
     a = (a < a_min) ? a_min : (a > a_max) ? a_max : a;
     
     return (int16_t)a;

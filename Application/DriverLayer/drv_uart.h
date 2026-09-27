@@ -16,21 +16,31 @@
 #define __DRV_UART_H
 
 /* Includes ------------------------------------------------------------------*/
-#include "stm32f4xx_hal.h"
-#include "rc_sensor.h"
+#include "stm32h7xx_hal.h"
+
 /* Exported types ------------------------------------------------------------*/
 /* Exported constants --------------------------------------------------------*/
 /* Exported macro ------------------------------------------------------------*/
 /* Exported functions --------------------------------------------------------*/
 void DRV_UART_IRQHandler(UART_HandleTypeDef *huart);
+void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart);
 void USART1_Init(void);
-void USART2_Init(void);
-void USART3_Init(void);
 void USART5_Init(void);
-void USART6_Init(void);
-void  UART_printf(char *format, ...);
-#define USART1_RX_BUF_LEN    128
-extern uint8_t usart1_dma_rxbuf[USART1_RX_BUF_LEN];
-extern uint8_t rc_offline_cnt;
-extern DMA_HandleTypeDef hdma_usart1_rx;
+void USART3_Init(void);
+void USART7_Init(void);
+void USART8_Init(void);
+void USART9_Init(void);
+void USART10_Init(void);
+void WL_UART_printf(char *format, ...);
+#define USART1_RX_BUF_LEN     400
+#define USART7_RX_BUF_LEN     400
+#define USART8_RX_BUF_LEN     400
+#define USART9_RX_BUF_LEN     400
+#define USART10_RX_BUF_LEN     400
+
+/* 1: use HAL_UARTEx_ReceiveToIdle_DMA for RC UART5, 0: use legacy double-buffer DMA */
+#ifndef UART5_RC_USE_HAL_TOIDLE_DMA
+#define UART5_RC_USE_HAL_TOIDLE_DMA  1
+#endif
+
 #endif

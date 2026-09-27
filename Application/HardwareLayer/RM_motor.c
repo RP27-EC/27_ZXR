@@ -75,7 +75,7 @@ static void Motor_Set_Speed(Motor_RM_t *motor)
 {
 	pid_ctrl_t* my_speed_ctrl = motor->ctrl->speed_ctrl;
 	my_speed_ctrl->measure = motor->rx_info->encoder_speed;
-	my_speed_ctrl->err=my_speed_ctrl->target-my_speed_ctrl->measure;
+	pid_err_cal(my_speed_ctrl);
 	single_pid_ctrl(my_speed_ctrl);
 	motor->tx_info->torque = my_speed_ctrl->out;
 }
@@ -95,7 +95,7 @@ static void Motor_Set_Angle(Motor_RM_t *motor)
 	{
 	my_angle_ctrl->measure = motor->rx_info->encoder;
 	}
-	my_angle_ctrl->err=my_angle_ctrl->target-my_angle_ctrl->measure;
+	pid_err_cal(my_angle_ctrl);
 	if(motor->ctrl->Nearest_Return == true)
 	{
 		if(motor->ctrl->Angle_Input_Flag == false)
@@ -126,10 +126,11 @@ static void Motor_Set_Angle(Motor_RM_t *motor)
 	my_speed_ctrl->target = my_angle_ctrl->out;
 	if(motor->ctrl->Speed_Input_Flag == false)
 	my_speed_ctrl->measure = motor->rx_info->encoder_speed;
-	my_speed_ctrl->err=my_speed_ctrl->target-my_speed_ctrl->measure;
+	pid_err_cal(my_speed_ctrl);
 	single_pid_ctrl(my_speed_ctrl);
 	motor->tx_info->torque = my_speed_ctrl->out;
 }
+
 
 /**
  * @brief  电机心跳失联检测
@@ -176,7 +177,7 @@ static void rm_motor_update(Motor_RM_t *rm_motor, uint8_t *rxBuf)
  * @retval 无
  */
 void RM_Motor_Init(Motor_RM_t *motor)
-{
+{ 
 	motor->single_set_torque = Motor_Set_Torque;
 	motor->single_heart_beat = rm_motor_heart_beat;
 	motor->single_sleep = Single_Motor_Sleep;
@@ -189,7 +190,7 @@ void RM_Motor_Init(Motor_RM_t *motor)
 
 /*..........................................多电机..........................................*/
 /**
-  * @brief          多电机（1~4个）电机控制输出转矩(含转换),4个电机必须为同一类型；含有CAN发送操作
+  * @brief          多电机（1~4个）电机控制输出转矩,4个电机必须为同一类型；含有CAN发送操作
   * @param[in]      Motor_RM_Group_t *group     电机组
   * @retval         none
   */
@@ -256,7 +257,6 @@ static void Group_Motor_Sleep(Motor_RM_Group_t *group)
 				group->motor[i]->tx_info->torque = 0;
 			}
 		}
-		
 }
 
 

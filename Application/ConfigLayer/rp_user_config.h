@@ -1,8 +1,16 @@
+/**
+ * @file        rp_user_config.h
+ * @author      RobotPilots
+ * @Version     v1.0
+ * @brief       RobotPilots Robots' User Configuration.
+ * @update
+ *              v1.0(7-November-2021)  
+ */
 #ifndef __RP_USER_CONFIG_H
 #define __RP_USER_CONFIG_H
 
 /* Includes ------------------------------------------------------------------*/
-#include "stm32f4xx_hal.h"
+#include "stm32h7xx_hal.h"
 #include "stdbool.h"
 
 /* Exported macro ------------------------------------------------------------*/

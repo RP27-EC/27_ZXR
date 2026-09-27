@@ -51,7 +51,7 @@ gimbal_transform_t gim_trans = {
  *     解算周期的一半，比如1ms解算1次则halfT为0.0005f
  */
 bmi_t bmi = {
-    .Kp = 0.125f,
+    .Kp = 1.0f,
     .norm = 0.0f,
     .halfT = 0.00025f,
     .gx = 0.0f, .gy = 0.0f, .gz = 0.0f,

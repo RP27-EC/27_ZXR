@@ -1,6 +1,6 @@
 /* Includes ------------------------------------------------------------------*/
 #include "drv_flash.h"
-
+#include "stm32_hal_legacy.h"
 #include "string.h"
 /* Private macro -------------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
@@ -70,21 +70,21 @@ void Flash_WriteWordData(uint32_t addr,uint32_t *data,uint16_t num)
 	HAL_FLASH_Lock();
 }
 
-/**
-  * @brief  将数据写入flash,以双字为单位
-  * @param  addr  flash中写入数据的起始地址
-  * @param  data  被写入数据的起始地址
-  * @param  num		写入数据数量
-  */
-void Flash_WriteDoubleWordData(uint32_t addr,uint64_t *data,uint16_t num)
-{
-	HAL_FLASH_Unlock();
-	for(uint16_t i=0;i<num;i++)
-	{
-		HAL_FLASH_Program(FLASH_TYPEPROGRAM_DOUBLEWORD, addr+8*i, data[i]);
-	}
-	HAL_FLASH_Lock();
-}
+///**
+//  * @brief  将数据写入flash,以双字为单位
+//  * @param  addr  flash中写入数据的起始地址
+//  * @param  data  被写入数据的起始地址
+//  * @param  num		写入数据数量
+//  */
+//void Flash_WriteDoubleWordData(uint32_t addr,uint64_t *data,uint16_t num)
+//{
+//	HAL_FLASH_Unlock();
+//	for(uint16_t i=0;i<num;i++)
+//	{
+//		HAL_FLASH_Program(FLASH_TYPEPROGRAM_DOUBLEWORD, addr+8*i, data[i]);
+//	}
+//	HAL_FLASH_Lock();
+//}
 
 /**
   * @brief  擦除扇区(将数据写入flash中原先已有数据的扇区前需要擦除扇区)

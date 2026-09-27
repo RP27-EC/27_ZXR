@@ -2,7 +2,7 @@
 #define __DRV_SPI_H
 
 /* Includes ------------------------------------------------------------------*/
-#include "stm32f4xx_hal.h"
+#include "stm32h7xx_hal.h"
 #include "imu_sensor.h"
 
 #include "main.h"

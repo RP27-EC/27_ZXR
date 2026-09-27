@@ -5,8 +5,6 @@
 #include "rp_config.h"
 
 /* Exported macro ------------------------------------------------------------*/
-#define RC_ONLINE	 (rc_sensor.work_state==DEV_ONLINE)
-#define RC_OFFLINE	 (rc_sensor.work_state==DEV_OFFLINE)
 /* ----------------------- RC Channel Definition------------------------------*/
 
 #define    RC_CH_VALUE_MIN       ((uint16_t)364 )
@@ -27,6 +25,10 @@
 #define    RC_TB_MD              ((uint16_t)3)
 #define    RC_TB_DN              ((uint16_t)2)
 
+#define    RC_MD_TO_UP              ((uint16_t)0)
+#define    RC_MD_TO_DO              ((uint16_t)1)
+
+#define 	 WHEEL_JUMP_VALUE        (550)         //旋钮跳变判断值
 
 /* ----------------------- PC Key Definition-------------------------------- */
 
@@ -48,15 +50,15 @@
 #define    KEY_PRESSED_OFFSET_B        ((uint16_t)0x01<<15)
 
 /* 检测按键长按时间 */
-#define MOUSE_BTN_L_CNT_MAX     833         //ms 鼠标左键，前哨频率
+#define MOUSE_BTN_L_CNT_MAX     500         //ms 鼠标左键
 #define MOUSE_BTN_R_CNT_MAX     500         //ms 鼠标右键
 #define KEY_Q_CNT_MAX           500         //ms Q键
-#define KEY_W_CNT_MAX           400		//ms W键
+#define KEY_W_CNT_MAX           1800		//ms W键
 #define KEY_E_CNT_MAX           500         //ms E键
 #define KEY_R_CNT_MAX           500         //ms R键
-#define KEY_A_CNT_MAX           400	    //ms A键
-#define KEY_S_CNT_MAX           400	    //ms S键
-#define KEY_D_CNT_MAX           400	    //ms D键
+#define KEY_A_CNT_MAX           1800	    //ms A键
+#define KEY_S_CNT_MAX           1800	    //ms S键
+#define KEY_D_CNT_MAX           1800	    //ms D键
 #define KEY_F_CNT_MAX           500         //ms F键
 #define KEY_G_CNT_MAX           500         //ms G键
 #define KEY_Z_CNT_MAX           500         //ms Z键
@@ -65,7 +67,7 @@
 #define KEY_V_CNT_MAX           500         //ms V键
 #define KEY_B_CNT_MAX           500         //ms B键
 #define KEY_SHIFT_CNT_MAX       500         //ms SHIFT键
-#define KEY_CTRL_CNT_MAX        2500        //ms CTRL键
+#define KEY_CTRL_CNT_MAX        1500        //ms CTRL键
 
 /* 平滑滤波次数 */
 #define REMOTE_SMOOTH_TIMES     10          //鼠标平滑滤波次数
@@ -81,22 +83,23 @@
 #define		RC_THUMB_WHEEL_VALUE		(rc_sensor_info.thumbwheel)
 
 /* 检测遥控器开关状态 */
-#define    IF_RC_SW1_UP      (rc_sensor_info.s1.value == RC_SW_UP)
-#define    IF_RC_SW1_MID     (rc_sensor_info.s1.value == RC_SW_MID)
-#define    IF_RC_SW1_DOWN    (rc_sensor_info.s1.value == RC_SW_DOWN)
-#define    IF_RC_SW2_UP      (rc_sensor_info.s2.value == RC_SW_UP)
-#define    IF_RC_SW2_MID     (rc_sensor_info.s2.value == RC_SW_MID)
-#define    IF_RC_SW2_DOWN    (rc_sensor_info.s2.value == RC_SW_DOWN)
+#define    IF_RC_SW1_UP      (rc_sensor_info.s1 == RC_SW_UP)
+#define    IF_RC_SW1_MID     (rc_sensor_info.s1 == RC_SW_MID)
+#define    IF_RC_SW1_DOWN    (rc_sensor_info.s1 == RC_SW_DOWN)
+#define    IF_RC_SW2_UP      (rc_sensor_info.s2 == RC_SW_UP)
+#define    IF_RC_SW2_MID     (rc_sensor_info.s2 == RC_SW_MID)
+#define    IF_RC_SW2_DOWN    (rc_sensor_info.s2 == RC_SW_DOWN)
 
 /* 获取鼠标三轴的移动速度 */
 #define    MOUSE_X_MOVE_SPEED    (rc_sensor_info.mouse_vx)
 #define    MOUSE_Y_MOVE_SPEED    (rc_sensor_info.mouse_vy)
 #define    MOUSE_Z_MOVE_SPEED    (rc_sensor_info.mouse_vz)
 
+
 /* 检测鼠标按键状态 
    按下为1，没按下为0*/
-#define    MOUSE_PRESSED_LEFT    (rc_sensor_info.mouse_btn_l==1)
-#define    MOUSE_PRESSED_RIGH    (rc_sensor_info.mouse_btn_r==1)
+#define    MOUSE_PRESSED_LEFT    (rc_sensor_info.mouse_btn_l == 1)
+#define    MOUSE_PRESSED_RIGH    (rc_sensor_info.mouse_btn_r == 1)
 
 
 /* 检测键盘按键状态 
@@ -140,32 +143,14 @@ typedef struct key_board_info_struct {
   int16_t cnt_max;                      //计数上限
 }key_board_info_t;
 
-/* 拨杆信息 */
-typedef struct
-{
-  uint8_t value_last;  //上一次值
-  uint8_t value;       //新值
-  uint8_t status;      //状态
-}remote_switch_info_t;
-
 /* 拨轮信息 */
 typedef struct
 {
   int16_t value_last;   //上一次值
   int16_t value;        //新值
-  uint8_t step[4];      //波轮跳变从0变1或1到0
-  uint8_t step_rising_trigger[4]; //波轮跳变瞬间为1
-	
+  uint8_t step[4];      //跳变状态
+	uint8_t step_change[2];
 }thumbwheel_info_t;
-
-/* 遥控器拨杆状态枚举 */
-typedef enum 
-{
-  keep_R,         //保持
-  up_R,           //向上拨
-  mid_R,          //向中拨
-  down_R,         //向下拨
-}remote_status_e;
 
 typedef struct rc_sensor_info_struct {
 	/* 拨轮跳变值 */
@@ -176,8 +161,8 @@ typedef struct rc_sensor_info_struct {
 	int16_t 	ch1;
 	int16_t 	ch2;
 	int16_t 	ch3;
-	remote_switch_info_t s1;
-	remote_switch_info_t s2;
+	uint8_t  	s1;
+	uint8_t  	s2;
 	thumbwheel_info_t 			thumbwheel;						//拨轮
 	/* 键鼠 */
   int16_t                 mouse_vx;             //鼠标x轴速度
@@ -224,8 +209,6 @@ typedef struct rc_sensor_struct {
 
 extern rc_sensor_info_t rc_sensor_info;
 extern rc_sensor_t 		rc_sensor;
-
-
 /* Exported functions --------------------------------------------------------*/
 bool RC_IsChannelReset(void);
 void RC_ResetData(rc_sensor_t *rc);

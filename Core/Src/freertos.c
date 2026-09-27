@@ -6,7 +6,7 @@
   ******************************************************************************
   * @attention
   *
-  * Copyright (c) 2024 STMicroelectronics.
+  * Copyright (c) 2025 STMicroelectronics.
   * All rights reserved.
   *
   * This software is licensed under terms that can be found in the LICENSE file
@@ -47,39 +47,54 @@
 /* USER CODE BEGIN Variables */
 
 /* USER CODE END Variables */
-osThreadId MonitorTaskHandle;
-osThreadId CommunityTaskHandle;
-osThreadId ControlTaskHandle;
-osThreadId LedTaskHandle;
+/* Definitions for MonitorTask */
+osThreadId_t MonitorTaskHandle;
+const osThreadAttr_t MonitorTask_attributes = {
+  .name = "MonitorTask",
+  .stack_size = 512 * 4,
+  .priority = (osPriority_t) osPriorityAboveNormal,
+};
+/* Definitions for CtrlTask */
+osThreadId_t CtrlTaskHandle;
+const osThreadAttr_t CtrlTask_attributes = {
+  .name = "CtrlTask",
+  .stack_size = 512 * 4,
+  .priority = (osPriority_t) osPriorityAboveNormal,
+};
+/* Definitions for CommandTask */
+osThreadId_t CommandTaskHandle;
+const osThreadAttr_t CommandTask_attributes = {
+  .name = "CommandTask",
+  .stack_size = 256 * 4,
+  .priority = (osPriority_t) osPriorityHigh,
+};
+/* Definitions for UpdataTask */
+osThreadId_t UpdataTaskHandle;
+const osThreadAttr_t UpdataTask_attributes = {
+  .name = "UpdataTask",
+  .stack_size = 256 * 4,
+  .priority = (osPriority_t) osPriorityBelowNormal,
+};
+/* Definitions for UITask */
+osThreadId_t UITaskHandle;
+const osThreadAttr_t UITask_attributes = {
+  .name = "UITask",
+  .stack_size = 1024 * 4,
+  .priority = (osPriority_t) osPriorityBelowNormal,
+};
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN FunctionPrototypes */
 
 /* USER CODE END FunctionPrototypes */
 
-void StartMonitorTask(void const * argument);
-void StartCommunityTask(void const * argument);
-void StartControlTask(void const * argument);
-void StartLedTask(void const * argument);
+void StartMonitorTask(void *argument);
+void StartCtrlTask(void *argument);
+void StartCommandTask(void *argument);
+void StartUpdataTask(void *argument);
+void StartUITask(void *argument);
 
-extern void MX_USB_DEVICE_Init(void);
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
-
-/* GetIdleTaskMemory prototype (linked to static allocation support) */
-void vApplicationGetIdleTaskMemory( StaticTask_t **ppxIdleTaskTCBBuffer, StackType_t **ppxIdleTaskStackBuffer, uint32_t *pulIdleTaskStackSize );
-
-/* USER CODE BEGIN GET_IDLE_TASK_MEMORY */
-static StaticTask_t xIdleTaskTCBBuffer;
-static StackType_t xIdleStack[configMINIMAL_STACK_SIZE];
-
-void vApplicationGetIdleTaskMemory( StaticTask_t **ppxIdleTaskTCBBuffer, StackType_t **ppxIdleTaskStackBuffer, uint32_t *pulIdleTaskStackSize )
-{
-  *ppxIdleTaskTCBBuffer = &xIdleTaskTCBBuffer;
-  *ppxIdleTaskStackBuffer = &xIdleStack[0];
-  *pulIdleTaskStackSize = configMINIMAL_STACK_SIZE;
-  /* place for user code */
-}
-/* USER CODE END GET_IDLE_TASK_MEMORY */
 
 /**
   * @brief  FreeRTOS initialization
@@ -108,39 +123,40 @@ void MX_FREERTOS_Init(void) {
   /* USER CODE END RTOS_QUEUES */
 
   /* Create the thread(s) */
-  /* definition and creation of MonitorTask */
-  osThreadDef(MonitorTask, StartMonitorTask, osPriorityRealtime, 0, 512);
-  MonitorTaskHandle = osThreadCreate(osThread(MonitorTask), NULL);
+  /* creation of MonitorTask */
+  MonitorTaskHandle = osThreadNew(StartMonitorTask, NULL, &MonitorTask_attributes);
 
-  /* definition and creation of CommunityTask */
-  osThreadDef(CommunityTask, StartCommunityTask, osPriorityHigh, 0, 512);
-  CommunityTaskHandle = osThreadCreate(osThread(CommunityTask), NULL);
+  /* creation of CtrlTask */
+  CtrlTaskHandle = osThreadNew(StartCtrlTask, NULL, &CtrlTask_attributes);
 
-  /* definition and creation of ControlTask */
-  osThreadDef(ControlTask, StartControlTask, osPriorityRealtime, 0, 1024);
-  ControlTaskHandle = osThreadCreate(osThread(ControlTask), NULL);
+  /* creation of CommandTask */
+  CommandTaskHandle = osThreadNew(StartCommandTask, NULL, &CommandTask_attributes);
 
-  /* definition and creation of LedTask */
-  osThreadDef(LedTask, StartLedTask, osPriorityAboveNormal, 0, 128);
-  LedTaskHandle = osThreadCreate(osThread(LedTask), NULL);
+  /* creation of UpdataTask */
+  UpdataTaskHandle = osThreadNew(StartUpdataTask, NULL, &UpdataTask_attributes);
+
+  /* creation of UITask */
+  UITaskHandle = osThreadNew(StartUITask, NULL, &UITask_attributes);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
   /* USER CODE END RTOS_THREADS */
 
+  /* USER CODE BEGIN RTOS_EVENTS */
+  /* add events, ... */
+  /* USER CODE END RTOS_EVENTS */
+
 }
 
 /* USER CODE BEGIN Header_StartMonitorTask */
 /**
-  * @brief  Function implementing the Monitor thread.
+  * @brief  Function implementing the MonitorTask thread.
   * @param  argument: Not used
   * @retval None
   */
 /* USER CODE END Header_StartMonitorTask */
-__weak void StartMonitorTask(void const * argument)
+__weak void StartMonitorTask(void *argument)
 {
-  /* init code for USB_DEVICE */
-  MX_USB_DEVICE_Init();
   /* USER CODE BEGIN StartMonitorTask */
   /* Infinite loop */
   for(;;)
@@ -150,62 +166,80 @@ __weak void StartMonitorTask(void const * argument)
   /* USER CODE END StartMonitorTask */
 }
 
-/* USER CODE BEGIN Header_StartCommunityTask */
+/* USER CODE BEGIN Header_StartCtrlTask */
 /**
-* @brief Function implementing the CommunityTask thread.
+* @brief Function implementing the CtrlTask thread.
 * @param argument: Not used
 * @retval None
 */
-/* USER CODE END Header_StartCommunityTask */
-__weak void StartCommunityTask(void const * argument)
+/* USER CODE END Header_StartCtrlTask */
+__weak void StartCtrlTask(void *argument)
 {
-  /* USER CODE BEGIN StartCommunityTask */
+  /* USER CODE BEGIN StartCtrlTask */
   /* Infinite loop */
   for(;;)
   {
     osDelay(1);
   }
-  /* USER CODE END StartCommunityTask */
+  /* USER CODE END StartCtrlTask */
 }
 
-/* USER CODE BEGIN Header_StartControlTask */
+/* USER CODE BEGIN Header_StartCommandTask */
 /**
-* @brief Function implementing the ControlTask thread.
+* @brief Function implementing the CommandTask thread.
 * @param argument: Not used
 * @retval None
 */
-/* USER CODE END Header_StartControlTask */
-__weak void StartControlTask(void const * argument)
+/* USER CODE END Header_StartCommandTask */
+__weak void StartCommandTask(void *argument)
 {
-  /* USER CODE BEGIN StartControlTask */
+  /* USER CODE BEGIN StartCommandTask */
   /* Infinite loop */
   for(;;)
   {
     osDelay(1);
   }
-  /* USER CODE END StartControlTask */
+  /* USER CODE END StartCommandTask */
 }
 
-/* USER CODE BEGIN Header_StartLedTask */
+/* USER CODE BEGIN Header_StartUpdataTask */
 /**
-* @brief Function implementing the LedTask thread.
+* @brief Function implementing the UpdataTask thread.
 * @param argument: Not used
 * @retval None
 */
-/* USER CODE END Header_StartLedTask */
-__weak void StartLedTask(void const * argument)
+/* USER CODE END Header_StartUpdataTask */
+__weak void StartUpdataTask(void *argument)
 {
-  /* USER CODE BEGIN StartLedTask */
+  /* USER CODE BEGIN StartUpdataTask */
   /* Infinite loop */
   for(;;)
-  {	
-    
+  {
     osDelay(1);
   }
-  /* USER CODE END StartLedTask */
+  /* USER CODE END StartUpdataTask */
+}
+
+/* USER CODE BEGIN Header_StartUITask */
+/**
+* @brief Function implementing the UITask thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_StartUITask */
+__weak void StartUITask(void *argument)
+{
+  /* USER CODE BEGIN StartUITask */
+  /* Infinite loop */
+  for(;;)
+  {
+    osDelay(1);
+  }
+  /* USER CODE END StartUITask */
 }
 
 /* Private application code --------------------------------------------------*/
 /* USER CODE BEGIN Application */
 
 /* USER CODE END Application */
+

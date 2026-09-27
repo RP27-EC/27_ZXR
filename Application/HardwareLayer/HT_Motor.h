@@ -1,13 +1,13 @@
 #ifndef __HT_MOTOR_H
 #define __HT_MOTOR_H
 
+#include "stm32h7xx_hal.h"
 #include "rp_config.h"
 #include "drv_can.h"
 #include "drv_tick.h"
 #include "rp_math.h"
-#include "motor_def.h"
 #include "arm_math.h"
-
+#include "config_chassis.h"
 #define HT_P_MIN -95.5f    // Radians
 #define HT_P_MAX 95.5f        
 #define HT_V_MIN -45.0f    // Rad/s
@@ -20,8 +20,8 @@
 #define HT_T_MAX 18.0f
 #define HT_C_MIN -40.0f    // A
 #define HT_C_MAX 40.0f
-#define HT_TORQUE_CONSTANT 0.45f //转矩常数N.m/A
-#define TIME_STEP 0.001
+#define TORQUE_CONSTANT 0.45f //转矩常数N.m/A
+
 /*电机指令集*/
 typedef enum Motor_MIT_Command_enum_e
 {
@@ -126,7 +126,6 @@ typedef struct Motor_HT_struct_t
 	Motor_HT_Tx_Info_t* tx_info;
 	
 	Motor_HT_State_t* state;
-
 	
 	void (*single_init)(struct Motor_HT_struct_t *motor);
 	

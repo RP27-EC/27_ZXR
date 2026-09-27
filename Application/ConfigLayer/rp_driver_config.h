@@ -1,8 +1,16 @@
+/**
+ * @file        rp_driver_config.h
+ * @author      RobotPilots
+ * @Version     v1.0
+ * @brief       RobotPilots Robots' Driver Configuration.
+ * @update
+ *              v1.0(7-November-2021)
+ */
 #ifndef __RP_DRIVER_CONFIG_H
 #define __RP_DRIVER_CONFIG_H
 
 /* Includes ------------------------------------------------------------------*/
-#include "stm32f4xx_hal.h"
+#include "stm32h7xx_hal.h"
 #include "stdbool.h"
 
 /* Exported macro ------------------------------------------------------------*/
@@ -73,15 +81,22 @@ typedef struct drv_iic {
  *	@brief	can驱动
  *	@class	driver
  */
+typedef struct drv_can_tx {
+    can_id_t    id;				// CAN1或CAN2
+		uint32_t	tx_id;  		// 上传报文标识符
+	uint8_t dlc;
+	uint8_t		*CANx_XXX_DATA; // 发送的数组
+} drv_can_txid;
+
 typedef struct drv_can {
-    can_id_t    can_id;				// CAN1或CAN2
+	drv_can_txid *tx_message;
     uint32_t    err_cnt;
 	uint32_t	rx_id;  		// 反馈报文标识符
-	uint32_t	tx_id;  		// 上传报文标识符
 	uint8_t		data_id;		// 数据下标
     uint16_t    tx_period;  	// 定时发送间隔(ms)
-	uint8_t		*CANx_XXX_DATA; // 发送的数组
 } drv_can_t;
+
+
 
 /**
  *	@brief	pwm驱动
@@ -101,5 +116,6 @@ typedef struct drv_uart {
     uart_id_t   id;
 		void				(*tx_byte)(struct drv_uart *self, uint8_t byte);
 } drv_uart_t;
+
 
 #endif

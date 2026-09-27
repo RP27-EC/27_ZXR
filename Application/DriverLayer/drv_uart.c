@@ -16,32 +16,41 @@
 /* Includes ------------------------------------------------------------------*/
 #include "drv_uart.h"
 #include "string.h"
-#include <stdio.h>//串口打印
-#include <stdarg.h>//串口打印
-
+#include "judge_protocol.h"
+#include <stdio.h>
+#include <stdarg.h>
+#include <string.h>
 extern UART_HandleTypeDef huart1;
-//extern UART_HandleTypeDef huart3;
-extern UART_HandleTypeDef huart3;
-//extern UART_HandleTypeDef huart5;
-extern UART_HandleTypeDef huart6;
+extern UART_HandleTypeDef huart5;
+extern UART_HandleTypeDef huart7;
+extern UART_HandleTypeDef huart8;
+extern UART_HandleTypeDef huart9;
+extern UART_HandleTypeDef huart10;
 
 /* Private macro -------------------------------------------------------------*/
-#define USART3_RX_DATA_FRAME_LEN	(18u)	// 数据帧长度
-#define USART3_RX_BUF_LEN			(USART3_RX_DATA_FRAME_LEN + 6u)	// 接收缓冲区长度
+#define USART5_RX_DATA_FRAME_LEN	(18u)	// 串口2数据帧长度
+#define USART5_RX_BUF_LEN			(USART5_RX_DATA_FRAME_LEN)	// 串口2接收缓冲区长度
 
 
-#define USART6_RX_BUF_LEN	  100	//200
+//#define USART5_RX_BUF_LEN	  600	//200
+#define BUFF_SIZE 512
+uint8_t rx_buff[BUFF_SIZE];
 
 /* Private function prototypes -----------------------------------------------*/
-__WEAK void USART1_rxDataHandler(uint8_t *rxBuf);
-//__WEAK void USART3_rxDataHandler(uint8_t *rxBuf);
-__WEAK void USART3_rxDataHandler(uint8_t *rxBuf);
+__WEAK void USART10_rxDataHandler(uint8_t *rxBuf);
+__WEAK void USART9_rxDataHandler(uint8_t *rxBuf);
+__WEAK void USART8_rxDataHandler(uint8_t *rxBuf);
+__WEAK void USART7_rxDataHandler(uint8_t *rxBuf);
 __WEAK void USART5_rxDataHandler(uint8_t *rxBuf);
-__WEAK void USART6_rxDataHandler(uint8_t *rxBuf);
-
+__WEAK void USART1_rxDataHandler(uint8_t *rxBuf);
+static HAL_StatusTypeDef DMA_Start(DMA_HandleTypeDef *hdma, \
+                            uint32_t SrcAddress, \
+                            uint32_t DstAddress, \
+                            uint32_t DataLength);
 static void dma_m0_rxcplt_callback(DMA_HandleTypeDef *hdma);
 static void dma_m1_rxcplt_callback(DMA_HandleTypeDef *hdma);
 static void uart_rx_idle_callback(UART_HandleTypeDef* huart);
+static void uart5_rc_start_receive(void);
 static HAL_StatusTypeDef DMAEx_MultiBufferStart_NoIT(DMA_HandleTypeDef *hdma, \
                                                     uint32_t SrcAddress, \
                                                     uint32_t DstAddress, \
@@ -50,31 +59,190 @@ static HAL_StatusTypeDef DMAEx_MultiBufferStart_NoIT(DMA_HandleTypeDef *hdma, \
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
-uint8_t usart1_dma_rxbuf[USART1_RX_BUF_LEN];
-uint8_t usart3_dma_rxbuf[2][USART3_RX_BUF_LEN];
-uint8_t usart6_dma_rxbuf[USART6_RX_BUF_LEN];
+__attribute__((section (".AXI_SRAM"))) uint8_t usart1_dma_rxbuf[USART1_RX_BUF_LEN];
+__attribute__((section (".AXI_SRAM"))) uint8_t usart10_dma_rxbuf[USART10_RX_BUF_LEN];
+__attribute__((section (".AXI_SRAM"))) uint8_t usart7_dma_rxbuf[USART7_RX_BUF_LEN];
+__attribute__((section (".AXI_SRAM"))) uint8_t usart8_dma_rxbuf[USART8_RX_BUF_LEN];
+__attribute__((section (".AXI_SRAM"))) uint8_t usart9_dma_rxbuf[USART9_RX_BUF_LEN];
+#if UART5_RC_USE_HAL_TOIDLE_DMA
+__attribute__((section (".AXI_SRAM"))) uint8_t usart5_dma_rxbuf[USART5_RX_BUF_LEN];
+#else
+__attribute__((section (".AXI_SRAM"))) uint8_t usart5_dma_rxbuf[2][USART5_RX_BUF_LEN];
+#endif
 
 /* Exported variables --------------------------------------------------------*/
 
+
+void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef * huart, uint16_t Size)
+{
+	if(huart->Instance == UART5)
+	{
+#if UART5_RC_USE_HAL_TOIDLE_DMA
+		if(HAL_UARTEx_GetRxEventType(huart) == HAL_UART_RXEVENT_IDLE)
+		{
+			if(Size == USART5_RX_DATA_FRAME_LEN)
+			{
+				USART5_rxDataHandler(usart5_dma_rxbuf);
+			}
+			uart5_rc_start_receive();
+		}
+#else
+		if(((((DMA_Stream_TypeDef  *)huart->hdmarx->Instance)->CR) & DMA_SxCR_CT ) == RESET) 
+		{ 
+			__HAL_DMA_DISABLE(huart->hdmarx); 
+
+			((DMA_Stream_TypeDef  *)huart->hdmarx->Instance)->CR |= DMA_SxCR_CT; 
+
+			__HAL_DMA_SET_COUNTER(huart->hdmarx,USART5_RX_DATA_FRAME_LEN*2); 
+
+			if(Size == USART5_RX_DATA_FRAME_LEN) 
+			{ 
+			USART5_rxDataHandler(usart5_dma_rxbuf[0]); 
+			} 
+		}
+		else
+		{
+			__HAL_DMA_DISABLE(huart->hdmarx); 
+
+			((DMA_Stream_TypeDef  *)huart->hdmarx->Instance)->CR &= ~(DMA_SxCR_CT); 
+	 
+			__HAL_DMA_SET_COUNTER(huart->hdmarx,USART5_RX_DATA_FRAME_LEN*2); 
+
+			if(Size == USART5_RX_DATA_FRAME_LEN) 
+			{ 
+			USART5_rxDataHandler(usart5_dma_rxbuf[1]); 
+			} 		 
+		}							   
+#endif
+	}
+
+#if !UART5_RC_USE_HAL_TOIDLE_DMA
+	huart->ReceptionType = HAL_UART_RECEPTION_TOIDLE;
+	
+	/* Enalbe IDLE interrupt */
+  __HAL_UART_ENABLE_IT(huart, UART_IT_IDLE);
+	
+  /* Enable the DMA transfer for the receiver request */
+  SET_BIT(huart->Instance->CR3, USART_CR3_DMAR);
+	
+	__HAL_DMA_ENABLE(huart->hdmarx);
+#endif
+}
+
+#if UART5_RC_USE_HAL_TOIDLE_DMA
+void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
+{
+	if(huart->Instance == UART5)
+	{
+		uart5_rc_start_receive();
+	}
+}
+#endif
+
+static void USART_DMAEx_MultiBuffer_Init(UART_HandleTypeDef *huart, uint32_t *DstAddress, uint32_t *SecondMemAddress, uint32_t DataLength)
+{
+ huart->ReceptionType = HAL_UART_RECEPTION_TOIDLE;
+
+// huart->RxEventType = HAL_UART_RXEVENT_IDLE;
+
+ huart->RxXferSize    = DataLength*2;
+ 
+	/*使能串口DMA模式*/
+ SET_BIT(huart->Instance->CR3,USART_CR3_DMAR);
+
+	/*使能uart中断*/
+ __HAL_UART_ENABLE_IT(huart, UART_IT_IDLE); 
+ 
+	/*关闭DMA传输，确保可以设置DMA起点和终点*/
+do{
+      __HAL_DMA_DISABLE(huart->hdmarx);
+  }while(((DMA_Stream_TypeDef  *)huart->hdmarx->Instance)->CR & DMA_SxCR_EN);
+
+	/*配置DMA起点地址和终点地址*/
+((DMA_Stream_TypeDef  *)huart->hdmarx->Instance)->PAR = (uint32_t)&huart->Instance->RDR;
+((DMA_Stream_TypeDef  *)huart->hdmarx->Instance)->M0AR = (uint32_t)DstAddress;
+((DMA_Stream_TypeDef  *)huart->hdmarx->Instance)->M1AR = (uint32_t)SecondMemAddress;
+
+	/*配置DMA数据传输长度*/
+((DMA_Stream_TypeDef  *)huart->hdmarx->Instance)->NDTR = DataLength;
+
+SET_BIT(((DMA_Stream_TypeDef  *)huart->hdmarx->Instance)->CR, DMA_SxCR_DBM);
+
+	/*使能DMA*/
+__HAL_DMA_ENABLE(huart->hdmarx);	
+}
+
+void USART5_Init(void)
+{
+#if UART5_RC_USE_HAL_TOIDLE_DMA
+	uart5_rc_start_receive();
+#else
+	USART_DMAEx_MultiBuffer_Init(&huart5, (uint32_t*)&usart5_dma_rxbuf[0], \
+							    (uint32_t*)&usart5_dma_rxbuf[1], USART5_RX_BUF_LEN); // 接收完毕后重启
+#endif
+}
+
+/**
+ *	@brief	USART1 Initialization
+ */
+void USART1_Init(void)
+{
+	__HAL_UART_ENABLE_IT(&huart1, UART_IT_IDLE);
+		
+	
+	HAL_UART_Receive_DMA(&huart1, usart1_dma_rxbuf, USART1_RX_BUF_LEN);
+	
+}
+
+/**
+ *	@brief	USART10 Initialization
+ */
+void USART10_Init(void)
+{
+	__HAL_UART_ENABLE_IT(&huart10, UART_IT_IDLE);
+		
+	
+	HAL_UART_Receive_DMA(&huart10, usart10_dma_rxbuf, USART10_RX_BUF_LEN);
+	
+}
+
+/**
+ *	@brief	USART10 Initialization
+ */
+void USART7_Init(void)
+{
+	__HAL_UART_ENABLE_IT(&huart7, UART_IT_IDLE);
+		
+	
+	HAL_UART_Receive_DMA(&huart7, usart7_dma_rxbuf, USART7_RX_BUF_LEN);
+	
+}
+
+/**
+ *	@brief	USART8 Initialization
+ */
+void USART8_Init(void)
+{
+	__HAL_UART_ENABLE_IT(&huart8, UART_IT_IDLE);
+		
+	
+	HAL_UART_Receive_DMA(&huart8, usart8_dma_rxbuf, USART8_RX_BUF_LEN);
+	
+}
+
+/**
+ *	@brief	USART9 Initialization
+ */
+void USART9_Init(void)
+{
+	__HAL_UART_ENABLE_IT(&huart9, UART_IT_IDLE);
+		
+	
+	HAL_UART_Receive_DMA(&huart9, usart9_dma_rxbuf, USART9_RX_BUF_LEN);	
+	
+}
+
 /* Private functions ---------------------------------------------------------*/
-
-
-static void dma_m0_rxcplt_callback(DMA_HandleTypeDef *hdma)
-{
-	// 将当前目标内存设置为Memory1
-	hdma->Instance->CR |= (uint32_t)(DMA_SxCR_CT);
-	USART3_rxDataHandler(usart3_dma_rxbuf[0]);
-	memset(usart3_dma_rxbuf[0], 0, USART3_RX_BUF_LEN);
-}
-
-static void dma_m1_rxcplt_callback(DMA_HandleTypeDef *hdma)
-{
-	// 将当前目标内存设置为Memory0
-	hdma->Instance->CR &= ~(uint32_t)(DMA_SxCR_CT);
-	USART3_rxDataHandler(usart3_dma_rxbuf[1]);
-	memset(usart3_dma_rxbuf[1], 0, USART3_RX_BUF_LEN);
-}
-
 /**
   * @brief   clear idle it flag after uart receive a frame data
   * @param   uart IRQHandler id
@@ -82,148 +250,79 @@ static void dma_m1_rxcplt_callback(DMA_HandleTypeDef *hdma)
   */
 static void uart_rx_idle_callback(UART_HandleTypeDef* huart)
 {
-	/* clear idle it flag avoid idle interrupt all the time */
-	__HAL_UART_CLEAR_IDLEFLAG(huart);	  //清除中断标志位
-	/* handle received data in idle interrupt */
-	if (huart == &huart3)
+	__HAL_UART_CLEAR_IDLEFLAG(huart);
+	
+	if (huart == &huart10)
 	{
-		//表示接收到遥控器数据，遥控器在线
-//		rc_sensor.work_state=DEV_ONLINE;
-		//接下来开始切换DMA缓冲区，
 		/* clear DMA transfer complete flag */
 		__HAL_DMA_DISABLE(huart->hdmarx);
-
+		HAL_UART_Receive_DMA(&huart10, usart10_dma_rxbuf, USART10_RX_BUF_LEN);
 		/* handle dbus data dbus_buf from DMA */
-		//uint32_t status = taskENTER_CRITICAL_FROM_ISR();
-		//判断是否接受到足够的一个数据帧，NDTR是DMA剩余传输字节数，如果满了并且是循环模式就进缓冲区2，不然就进1
-		if ((USART3_RX_BUF_LEN - huart->hdmarx->Instance->NDTR) == USART3_RX_DATA_FRAME_LEN)
-		{
-			if(huart->hdmarx->Instance->CR & DMA_SxCR_CT)  //DMA_SxCR_CT是循环模式，SxCR是通道x的控制寄存器
-				huart->hdmarx->XferM1CpltCallback(huart->hdmarx); 
-			else
-				huart->hdmarx->XferCpltCallback(huart->hdmarx); //否则调用这个处理数据
-		}
-		//taskEXIT_CRITICAL_FROM_ISR(status);
-
-		/* restart dma transmission */
-		__HAL_DMA_SET_COUNTER(huart->hdmarx, USART3_RX_BUF_LEN);  //设置DMA缓冲区总长度
-		__HAL_DMA_ENABLE(huart->hdmarx);	  						//开启DMA
+		USART10_rxDataHandler(usart10_dma_rxbuf);
+		//memset(usart10_dma_rxbuf, 0, USART10_RX_BUF_LEN);
+		/* restart dma transmission */	  
+		__HAL_DMA_ENABLE(huart->hdmarx);		
 	}
-  else if (huart == &huart1)
+	
+	else if (huart == &huart1)
 	{
 		/* clear DMA transfer complete flag */
 		__HAL_DMA_DISABLE(huart->hdmarx);
+		HAL_UART_Receive_DMA(&huart1, usart1_dma_rxbuf, USART1_RX_BUF_LEN);
 		/* handle dbus data dbus_buf from DMA */
 		USART1_rxDataHandler(usart1_dma_rxbuf);
-		memset(usart1_dma_rxbuf, 0, USART1_RX_BUF_LEN);  //清空串口DMA缓冲区
-		__HAL_DMA_SET_COUNTER(huart->hdmarx, USART1_RX_BUF_LEN); /*imu_xrobot 让DMA重置时重置计数器*/
+		memset(usart1_dma_rxbuf, 0, USART1_RX_BUF_LEN);
 		/* restart dma transmission */	  
-		__HAL_DMA_ENABLE(huart->hdmarx);
+		__HAL_DMA_ENABLE(huart->hdmarx);		
 	}
-	else if (huart == &huart6)
+	
+	else if (huart == &huart7)
 	{
 		/* clear DMA transfer complete flag */
 		__HAL_DMA_DISABLE(huart->hdmarx);
+		HAL_UART_Receive_DMA(&huart7, usart7_dma_rxbuf, USART7_RX_BUF_LEN);
 		/* handle dbus data dbus_buf from DMA */
-		USART6_rxDataHandler(usart6_dma_rxbuf);//处理数据
-		memset(usart6_dma_rxbuf, 0, USART6_RX_BUF_LEN);//清空串口DMA缓冲区
+		USART7_rxDataHandler(usart7_dma_rxbuf);
+		//memset(usart7_dma_rxbuf, 0, USART7_RX_BUF_LEN);
 		/* restart dma transmission */	  
-		__HAL_DMA_ENABLE(huart->hdmarx);
+		__HAL_DMA_ENABLE(huart->hdmarx);		
 	}
-  
+	
+	else if (huart == &huart8)
+	{
+		/* clear DMA transfer complete flag */
+		__HAL_DMA_DISABLE(huart->hdmarx);
+		HAL_UART_Receive_DMA(&huart8, usart8_dma_rxbuf, USART8_RX_BUF_LEN);
+		/* handle dbus data dbus_buf from DMA */
+		USART8_rxDataHandler(usart8_dma_rxbuf);
+		//memset(usart8_dma_rxbuf, 0, USART8_RX_BUF_LEN);
+		/* restart dma transmission */	  
+		__HAL_DMA_ENABLE(huart->hdmarx);		
+	}
+	
+	else if (huart == &huart9)
+	{
+		/* clear DMA transfer complete flag */
+		__HAL_DMA_DISABLE(huart->hdmarx);
+		HAL_UART_Receive_DMA(&huart9, usart9_dma_rxbuf, USART9_RX_BUF_LEN);
+		/* handle dbus data dbus_buf from DMA */
+		USART9_rxDataHandler(usart9_dma_rxbuf);
+		//memset(usart9_dma_rxbuf, 0, USART9_RX_BUF_LEN);
+		/* restart dma transmission */	  
+		__HAL_DMA_ENABLE(huart->hdmarx);		
+	}
 }
 
-/**
- *	@brief	start double buffer dma transfer with no interrupt
- */
-static HAL_StatusTypeDef DMAEx_MultiBufferStart_NoIT(DMA_HandleTypeDef *hdma, \
-                                                    uint32_t SrcAddress, \
-                                                    uint32_t DstAddress, \
-                                                    uint32_t SecondMemAddress, \
-                                                    uint32_t DataLength)
+static void uart5_rc_start_receive(void)
 {
-    HAL_StatusTypeDef status = HAL_OK;
-
-    /* Memory-to-memory transfer not supported in double buffering mode */
-    if (hdma->Init.Direction == DMA_MEMORY_TO_MEMORY)
-    {
-		hdma->ErrorCode = HAL_DMA_ERROR_NOT_SUPPORTED;
-		return HAL_ERROR;
-    }   
-
-	/* Set the UART DMA transfer complete callback */
-	/* Current memory buffer used is Memory 1 callback */
-	hdma->XferCpltCallback   = dma_m0_rxcplt_callback;
-	/* Current memory buffer used is Memory 0 callback */
-	hdma->XferM1CpltCallback = dma_m1_rxcplt_callback;	
-
-	/* Check callback functions */
-	if ((NULL == hdma->XferCpltCallback) || (NULL == hdma->XferM1CpltCallback))
-	{
-	hdma->ErrorCode = HAL_DMA_ERROR_PARAM;
-	return HAL_ERROR;
-	}
-	
-	/* Process locked */
-	__HAL_LOCK(hdma);
-	
-	if(HAL_DMA_STATE_READY == hdma->State)
-	{	
-		/* Change DMA peripheral state */
-		hdma->State = HAL_DMA_STATE_BUSY;
-
-		/* Initialize the error code */
-		hdma->ErrorCode = HAL_DMA_ERROR_NONE;
-
-		/* Enable the Double buffer mode */
-		hdma->Instance->CR |= (uint32_t)DMA_SxCR_DBM;
-
-		/* Configure DMA Stream destination address */
-		hdma->Instance->M1AR = SecondMemAddress;		
-
-		/* Configure DMA Stream data length */
-		hdma->Instance->NDTR = DataLength;		
-		
-		/* Peripheral to Memory */
-		if((hdma->Init.Direction) == DMA_MEMORY_TO_PERIPH)
-		{   
-			/* Configure DMA Stream destination address */
-			hdma->Instance->PAR = DstAddress;
-
-			/* Configure DMA Stream source address */
-			hdma->Instance->M0AR = SrcAddress;
-		}
-		/* Memory to Peripheral */
-		else
-		{
-			/* Configure DMA Stream source address */
-			hdma->Instance->PAR = SrcAddress;
-
-			/* Configure DMA Stream destination address */
-			hdma->Instance->M0AR = DstAddress;
-		}		
-		
-		/* Clear TC flags */
-		__HAL_DMA_CLEAR_FLAG (hdma, __HAL_DMA_GET_TC_FLAG_INDEX(hdma));
-		/* Enable TC interrupts*/
-//		hdma->Instance->CR  |= DMA_IT_TC;
-		
-		/* Enable the peripheral */
-		__HAL_DMA_ENABLE(hdma); 
-	}
-	else
-	{
-		/* Process unlocked */
-		__HAL_UNLOCK(hdma);	  
-
-		/* Return error status */
-		status = HAL_BUSY;		
-	}
-	/* Process unlocked */
-	__HAL_UNLOCK(hdma);
-
-	return status; 	
+#if UART5_RC_USE_HAL_TOIDLE_DMA
+	HAL_UART_DMAStop(&huart5);
+	__HAL_UART_CLEAR_FLAG(&huart5, UART_CLEAR_OREF | UART_CLEAR_NEF | UART_CLEAR_PEF | UART_CLEAR_FEF | UART_CLEAR_IDLEF);
+	HAL_UARTEx_ReceiveToIdle_DMA(&huart5, usart5_dma_rxbuf, USART5_RX_BUF_LEN);
+	__HAL_DMA_DISABLE_IT(huart5.hdmarx, DMA_IT_HT);
+#endif
 }
+
 
 static HAL_StatusTypeDef DMA_Start(DMA_HandleTypeDef *hdma, \
                             uint32_t SrcAddress, \
@@ -244,28 +343,28 @@ static HAL_StatusTypeDef DMA_Start(DMA_HandleTypeDef *hdma, \
 
 		/* Configure the source, destination address and the data length */
 		/* Clear DBM bit */
-		hdma->Instance->CR &= (uint32_t)(~DMA_SxCR_DBM);
+		((DMA_Stream_TypeDef  *)hdma->Instance)->CR &= (uint32_t)(~DMA_SxCR_DBM);
 
 		/* Configure DMA Stream data length */
-		hdma->Instance->NDTR = DataLength;
+		((DMA_Stream_TypeDef  *)hdma->Instance)->NDTR = DataLength;
 
 		/* Memory to Peripheral */
 		if((hdma->Init.Direction) == DMA_MEMORY_TO_PERIPH)
 		{
 			/* Configure DMA Stream destination address */
-			hdma->Instance->PAR = DstAddress;
+			((DMA_Stream_TypeDef  *)hdma->Instance)->PAR = DstAddress;
 
 			/* Configure DMA Stream source address */
-			hdma->Instance->M0AR = SrcAddress;
+			((DMA_Stream_TypeDef  *)hdma->Instance)->M0AR = SrcAddress;
 		}
 		/* Peripheral to Memory */
 		else
 		{
 			/* Configure DMA Stream source address */
-			hdma->Instance->PAR = SrcAddress;
+			((DMA_Stream_TypeDef  *)hdma->Instance)->PAR = SrcAddress;
 
 			/* Configure DMA Stream destination address */
-			hdma->Instance->M0AR = DstAddress;
+			((DMA_Stream_TypeDef  *)hdma->Instance)->M0AR = DstAddress;
 		}
 
 		/* Enable the Peripheral */
@@ -281,7 +380,6 @@ static HAL_StatusTypeDef DMA_Start(DMA_HandleTypeDef *hdma, \
 	} 
 	return status; 	
 }
-/* Exported functions --------------------------------------------------------*/
 /**
   * @brief   callback this function when uart interrupt 
   * @param   uart IRQHandler id
@@ -297,76 +395,17 @@ void DRV_UART_IRQHandler(UART_HandleTypeDef *huart)
 	}
 }
 
-/**
- *	@brief	USART1 Initialization
- */
-void USART1_Init(void)
+void WL_UART_printf(char *format, ...)
 {
-	__HAL_UART_CLEAR_IDLEFLAG(&huart1);
-	__HAL_UART_ENABLE_IT(&huart1, UART_IT_IDLE);
-	
-	// Enable the DMA transfer for the receiver request
-	SET_BIT(huart1.Instance->CR3, USART_CR3_DMAR);	
-	
-	DMA_Start(huart1.hdmarx, \
-			  (uint32_t)&huart1.Instance->DR, \
-			  (uint32_t)usart1_dma_rxbuf, \
-			  USART1_RX_BUF_LEN);
+		char String[100];
+		va_list arg;
+		va_start(arg, format);
+		vsprintf(String, format, arg);
+		va_end(arg);
+		
+		HAL_UART_Transmit(&huart7, (uint8_t *)String, strlen(String), 1000);
 }
 
-/**
- *	@brief	USART3 Initialization
- */
-void USART3_Init(void)
-{
-	__HAL_UART_CLEAR_IDLEFLAG(&huart3);
-	__HAL_UART_ENABLE_IT(&huart3, UART_IT_IDLE);
-	
-	// Enable the DMA transfer for the receiver request
-	SET_BIT(huart3.Instance->CR3, USART_CR3_DMAR);	
-	
-	DMAEx_MultiBufferStart_NoIT(huart3.hdmarx, \
-							    (uint32_t)&huart3.Instance->DR, \
-							    (uint32_t)usart3_dma_rxbuf[0], \
-							    (uint32_t)usart3_dma_rxbuf[1], \
-							    USART3_RX_DATA_FRAME_LEN);
-}
-
-/**
- *	@brief	USART6 Initialization
- */
-void USART6_Init(void)
-{
-	__HAL_UART_CLEAR_IDLEFLAG(&huart6);
-	__HAL_UART_ENABLE_IT(&huart6, UART_IT_IDLE);
-	
-	// Enable the DMA transfer for the receiver request
-	SET_BIT(huart6.Instance->CR3, USART_CR3_DMAR);	
-	
-	DMA_Start(huart6.hdmarx, \
-			  (uint32_t)&huart6.Instance->DR, \
-			  (uint32_t)usart6_dma_rxbuf, \
-			  USART6_RX_BUF_LEN);
-}
-
-/*
-* @brief 串口打印
-* @note  要求波特率115200
-* @examplet t+= 0.1;
-*			UART_printf("samples:%f, %f, %f, %f\n", sin(t), sin(2*t), sin(3*t), sin(4*t));
-*/
-void  UART_printf(char *format, ...)
-  {
-      char String[100];
-      va_list arg;	
-      va_start(arg, format);
-      vsprintf(String, format, arg);
-      va_end(arg);
-      
-      HAL_UART_Transmit(&huart6, (uint8_t *)String, strlen(String), 100);
-  }
-
-  
 /* rxData Handler [Weak] functions -------------------------------------------*/
 /**
  *	@brief	[__WEAK] 需要在Potocol Layer中实现具体的 USART1 处理协议
@@ -376,16 +415,36 @@ __WEAK void USART1_rxDataHandler(uint8_t *rxBuf)
 }
 
 /**
- *	@brief	[__WEAK] 需要在Potocol Layer中实现具体的 USART3 处理协议
+ *	@brief	[__WEAK] 需要在Potocol Layer中实现具体的 USART7 处理协议
  */
-__WEAK void USART3_rxDataHandler(uint8_t *rxBuf)
+__WEAK void USART7_rxDataHandler(uint8_t *rxBuf)
 {	
 }
 
 /**
- *	@brief	[__WEAK] 需要在Potocol Layer中实现具体的 USART6 处理协议
+ *	@brief	[__WEAK] 需要在Potocol Layer中实现具体的 USART5 处理协议
  */
-__WEAK void USART6_rxDataHandler(uint8_t *rxBuf)
+__WEAK void USART5_rxDataHandler(uint8_t *rxBuf)
 {	
 }
 
+/**
+ *	@brief	[__WEAK] 需要在Potocol Layer中实现具体的 USART10 处理协议
+ */
+__WEAK void USART10_rxDataHandler(uint8_t *rxBuf)
+{	
+}
+
+/**
+ *	@brief	[__WEAK] 需要在Potocol Layer中实现具体的 USART8 处理协议
+ */
+__WEAK void USART8_rxDataHandler(uint8_t *rxBuf)
+{	
+}
+
+/**
+ *	@brief	[__WEAK] 需要在Potocol Layer中实现具体的 USART9 处理协议
+ */
+__WEAK void USART9_rxDataHandler(uint8_t *rxBuf)
+{	
+}

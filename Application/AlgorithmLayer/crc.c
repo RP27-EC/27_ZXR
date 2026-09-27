@@ -24,6 +24,7 @@ const uint8_t CRC8_TAB[256] =
 		0x74, 0x2a, 0xc8, 0x96, 0x15, 0x4b, 0xa9, 0xf7, 0xb6, 0xe8, 0x0a, 0x54, 0xd7, 0x89, 0x6b, 0x35,
 };
 
+
 uint16_t CRC_INIT = 0xffff;
 const uint16_t wCRC_Table[256] =
 {
@@ -65,14 +66,50 @@ const uint16_t wCRC_Table[256] =
 void Append_CRC8_Check_Sum( uint8_t *pchMessage, uint16_t dwLength);
 uint32_t Verify_CRC8_Check_Sum( uint8_t *pchMessage, uint16_t dwLength);
 uint8_t Get_CRC8_Check_Sum( uint8_t *pchMessage, uint16_t dwLength, uint8_t ucCRC8 );
-
+void Append_CRC8_Check_Num( uint8_t *pchMessage, uint16_t dwLength);
 // CRC16
 void Append_CRC16_Check_Sum(uint8_t * pchMessage,uint32_t dwLength);
 uint32_t Verify_CRC16_Check_Sum(uint8_t *pchMessage, uint32_t dwLength);
 uint16_t Get_CRC16_Check_Sum(uint8_t *pchMessage,uint32_t dwLength,uint16_t wCRC);
 
+/**
+  * @brief  get crc8 check num
+  * @param  pointer to the first address of the message
+  *         length of the message
+  *         CRC8 which Initialized
+  * @retval 
+  */
+uint8_t Get_CRC8_Check_Num( uint8_t *pchMessage, uint16_t dwLength, uint8_t ucCRC8 )
+{
+		uint8_t ucIndex;
+	
+		while (dwLength--)
+		{
+				ucIndex = ucCRC8^(*pchMessage++);
+				ucCRC8 = CRC8_TAB[ucIndex];
+		}
+		return ucCRC8;
+}
 
-
+/**
+  * @brief  append crc8 check num
+  * @param  pointer to the first address of the message
+  *         length of the message and crc8 check num
+  * @retval 
+  */
+void Append_CRC8_Check_Num( uint8_t *pchMessage, uint16_t dwLength)
+{
+		uint8_t ucCRC = 0;
+	
+		if (pchMessage == 0 || dwLength <= 2)
+		{
+			  return;
+		}
+		
+		ucCRC = Get_CRC8_Check_Num( (uint8_t *)pchMessage, dwLength-1, CRC8_INIT);
+		
+		pchMessage[dwLength-1] = ucCRC;
+}
 
 /* CRCÐ£Ñé */
 

@@ -22,30 +22,22 @@
 #define SLAVE_TX_ID 
 #define SLAVE_RX_ID 
 
-/*
-//CAN1
-#define ID_GIMB_YAW 	0x142
-#define ID_DAIL 		0x207 //0x1FF  45
-#define ID_IMAGE		0x206 //0x1FF  23
-#define ID_TELESCOPE	0x205 //0x1FF  01
+/*CAN1*/
+#define CHASSIS_CAN_ID_LF			 RM3508_CAN_ID_201
+#define CHASSIS_CAN_ID_RF			 RM3508_CAN_ID_202
+#define CHASSIS_CAN_ID_LB			 RM3508_CAN_ID_203
+#define CHASSIS_CAN_ID_RB			 RM3508_CAN_ID_204
 
-//CAN2
-#define ID_FRIC_B_UP 	0x201 //0x200  01
-#define ID_FRIC_F_UP 	0x202 //0x200  23
-#define ID_FRIC_B_R 	0x203 //0x200  45
-#define ID_FRIC_B_L 	0x204 //0x200  67
-#define ID_FRIC_F_R 	0x205 //0x1FF  01
-#define ID_GIMB_P 		0x206 //0x1FF  23
-#define ID_FRIC_F_L 	0x207 //0x1FF  45
-*/
-
+/*CAN2*/
+#define GIMBAL_CAN_ID_PITCH			 GM6020_CAN_ID_205
+#define GIMBAL_CAN_ID_YAW			 GM6020_CAN_ID_206
+#define FRIC_CAN_ID_LEFT		     RM3508_CAN_ID_201
+#define FRIC_CAN_ID_RIGHT			 RM3508_CAN_ID_202
+#define LAUNCH_CAN_ID_DIAL	         RM2006_CAN_ID_203
 
 /* Exported functions --------------------------------------------------------*/
 void CAN1_rxDataHandler(uint32_t canId, uint8_t *rxBuf);
 void CAN2_rxDataHandler(uint32_t canId, uint8_t *rxBuf);
-void CAN_SendAll(void);
-void CAN_Send(void);
-void CAN_SendAllZero(void);
-
+void cap_data_send(uint8_t can_num);
 
 #endif

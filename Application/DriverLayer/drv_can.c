@@ -10,186 +10,92 @@
   */
 /* Includes ------------------------------------------------------------------*/
 #include "drv_can.h"
-
+#include "fdcan.h"
 /* Exported variables --------------------------------------------------------*/
 /* CAN 200/1FF发送数组 */
-uint8_t CAN1_200_DATA[8] = {0};
-uint8_t CAN1_1FF_DATA[8] = {0};
-uint8_t CAN1_2FF_DATA[8] = {0};
-uint8_t CAN2_200_DATA[8] = {0};
-uint8_t CAN2_1FF_DATA[8] = {0};
-uint8_t CAN2_2FF_DATA[8] = {0};
 
 /* Private function prototypes -----------------------------------------------*/
 void CAN1_rxDataHandler(uint32_t canId, uint8_t *rxBuf);
 void CAN2_rxDataHandler(uint32_t canId, uint8_t *rxBuf);
-
+void CAN3_rxDataHandler(uint32_t canId, uint8_t *rxBuf);
 /* Private variables ---------------------------------------------------------*/
 /**
   * @brief CAN1\CAN2实例
   */
-extern CAN_HandleTypeDef hcan1;
-extern CAN_HandleTypeDef hcan2;
+
+extern FDCAN_HandleTypeDef hfdcan3;
 
 CAN_RxFrameTypeDef hcan1RxFrame;
 CAN_RxFrameTypeDef hcan2RxFrame;
-CAN_TxHeaderTypeDef CAN_TxHeadeType;
+CAN_RxFrameTypeDef hcan3RxFrame;
 /* Exported functions --------------------------------------------------------*/
+void FDCAN1_Restart(void) {
+    // 禁用 FDCAN 模块
+    HAL_FDCAN_DeInit(&hfdcan1);
+
+		MX_FDCAN1_Init();
+
+   CAN1_Filter_Init();
+
+    // 启动 FDCAN 模块
+    HAL_FDCAN_Start(&hfdcan1);
+
+    // 启用中断
+    HAL_FDCAN_ActivateNotification(&hfdcan1, FDCAN_IT_RX_FIFO0_NEW_MESSAGE | FDCAN_IT_ERROR_WARNING, 0);
+}
+
+void FDCAN2_Restart(void) {
+    // 禁用 FDCAN 模块
+    HAL_FDCAN_DeInit(&hfdcan2);
+
+		MX_FDCAN2_Init();
+
+   CAN2_Filter_Init();
+
+    // 启动 FDCAN 模块
+    HAL_FDCAN_Start(&hfdcan2);
+
+    // 启用中断
+    HAL_FDCAN_ActivateNotification(&hfdcan2, FDCAN_IT_RX_FIFO0_NEW_MESSAGE | FDCAN_IT_ERROR_WARNING, 0);
+}
 /**
   * @brief  can接受中断，在stm32f4xx_hal_can.c内弱定义
   * @param  
   * @retval 
   */
-void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
+void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hcan, uint32_t RxFifo0ITs)
 {
   
-  if(hcan == &hcan1)
+  if(hcan == &hfdcan1)
   {
-		HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO0, &hcan1RxFrame.header, hcan1RxFrame.data);
+		HAL_FDCAN_GetRxMessage(hcan, FDCAN_RX_FIFO0, &hcan1RxFrame.header, hcan1RxFrame.data);
 		
-		CAN1_rxDataHandler(hcan1RxFrame.header.StdId, hcan1RxFrame.data);
+		CAN1_rxDataHandler(hcan1RxFrame.header.Identifier, hcan1RxFrame.data);
   }
-  else if(hcan == &hcan2)
+  else if(hcan == &hfdcan2)
   {
-		HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO0, &hcan2RxFrame.header, hcan2RxFrame.data);
+		HAL_FDCAN_GetRxMessage(hcan, FDCAN_RX_FIFO0, &hcan2RxFrame.header, hcan2RxFrame.data);
 		
-		CAN2_rxDataHandler(hcan2RxFrame.header.StdId, hcan2RxFrame.data);
+		CAN2_rxDataHandler(hcan2RxFrame.header.Identifier, hcan2RxFrame.data);
   }
   else 
   {
     return;
   }
 }
-
-/**
-  * @brief  发送CAN1数据帧200
-  * @param  
-  * @retval 
-  */
-void CAN1_CMD_200()
+FDCAN_RxHeaderTypeDef RxHeader2;
+void HAL_FDCAN_RxFifo1Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo1ITs)
 {
-	CAN_TxHeaderTypeDef tx_message;
-	
-	uint32_t send_mail_box;
-	tx_message.StdId = 0x200;
-	tx_message.IDE = CAN_ID_STD;
-	tx_message.RTR = CAN_RTR_DATA;
-	tx_message.DLC = 0x08;
-
-	HAL_CAN_AddTxMessage(&hcan1, &tx_message, CAN1_200_DATA, &send_mail_box);
+  if((RxFifo1ITs & FDCAN_IT_RX_FIFO1_NEW_MESSAGE) != RESET)
+  {
+		if(hfdcan->Instance == FDCAN3)
+    {
+      HAL_FDCAN_GetRxMessage(hfdcan, FDCAN_RX_FIFO1, &hcan3RxFrame.header, hcan3RxFrame.data);
+			CAN3_rxDataHandler(hcan3RxFrame.header.Identifier, hcan3RxFrame.data);
+    }
+  }
 }
 
-/**
-  * @brief  发送CAN2数据帧200
-  * @param  
-  * @retval 
-  */
-void CAN2_CMD_200()
-{
-	CAN_TxHeaderTypeDef tx_message;
-	
-	uint32_t send_mail_box;
-	tx_message.StdId = 0x200;
-	tx_message.IDE = CAN_ID_STD;
-	tx_message.RTR = CAN_RTR_DATA;
-	tx_message.DLC = 0x08;
-
-	HAL_CAN_AddTxMessage(&hcan2, &tx_message, CAN2_200_DATA, &send_mail_box);
-}
-
-/**
-  * @brief  发送CAN1数据帧1FF
-  * @param  
-  * @retval 
-  */
-void CAN1_CMD_1FF()
-{
-	CAN_TxHeaderTypeDef tx_message;
-	
-	uint32_t send_mail_box;
-	tx_message.StdId = 0x1FF;
-	tx_message.IDE = CAN_ID_STD;
-	tx_message.RTR = CAN_RTR_DATA;
-	tx_message.DLC = 0x08;
-
-	HAL_CAN_AddTxMessage(&hcan1, &tx_message, CAN1_1FF_DATA, &send_mail_box);
-}
-
-/**
-  * @brief  发送CAN2数据帧1FF
-  * @param  
-  * @retval 
-  */
-void CAN2_CMD_1FF()
-{
-	CAN_TxHeaderTypeDef tx_message;
-	
-	uint32_t send_mail_box;
-	tx_message.StdId = 0x1FF;
-	tx_message.IDE = CAN_ID_STD;
-	tx_message.RTR = CAN_RTR_DATA;
-	tx_message.DLC = 0x08;
-
-	HAL_CAN_AddTxMessage(&hcan2, &tx_message, CAN2_1FF_DATA, &send_mail_box);
-}
-
-/**
-  * @brief  int16类型数组转换为uint8类型数组
-  * @param  uint8_t: *data
-  * @param  int16_t: *dat
-  * @retval None
-  */
-void int16_to_uint8(uint8_t *data, int16_t *dat)
-{
-	data[0] = (uint8_t)((int16_t)dat[0] >> 8);
-	data[1] = (uint8_t)((int16_t)dat[0]);
-	data[2] = (uint8_t)((int16_t)dat[1] >> 8);
-	data[3] = (uint8_t)((int16_t)dat[1]);
-	data[4] = (uint8_t)((int16_t)dat[2] >> 8);
-	data[5] = (uint8_t)((int16_t)dat[2]);
-	data[6] = (uint8_t)((int16_t)dat[3] >> 8);
-	data[7] = (uint8_t)((int16_t)dat[3]);			
-}
-
-/**
- * @brief  CAN数组自己定义，发送数据	 
- * @param  hcan1: CAN_HandleTypeDef
- * @param  CAN_DATA: 数据指针
- * @param  StdId: 标准ID
- * @retval
- */
-void CAN1_SendData(uint32_t StdId, uint8_t *CAN_DATA)
-{
-	uint32_t send_mail_box;
-	
-	CAN_TxHeaderTypeDef tx_message;
-	tx_message.IDE = CAN_ID_STD;
-	tx_message.RTR = CAN_RTR_DATA;
-	tx_message.DLC = 0x08;
-	tx_message.StdId = StdId;
-	
-	HAL_CAN_AddTxMessage(&hcan1, &tx_message, CAN_DATA, &send_mail_box);
-}
-
-/**
- * @brief  CAN数组自己定义，发送数据	 
- * @param  hcan2: CAN_HandleTypeDef
- * @param  CAN_DATA: 数据指针
- * @param  StdId: 标准ID
- * @retval
- */
-void CAN2_SendData(uint32_t StdId, uint8_t *CAN_DATA)
-{
-	uint32_t send_mail_box;
-	
-	CAN_TxHeaderTypeDef tx_message;
-	tx_message.IDE = CAN_ID_STD;
-	tx_message.RTR = CAN_RTR_DATA;
-	tx_message.DLC = 0x08;
-	tx_message.StdId = StdId;
-	
-	HAL_CAN_AddTxMessage(&hcan2, &tx_message, CAN_DATA, &send_mail_box);
-}
 
 /**
   * @brief  CAN发送数据
@@ -198,28 +104,27 @@ void CAN2_SendData(uint32_t StdId, uint8_t *CAN_DATA)
   * @param  dat: 数组指针
   * @retval HAL_StatusTypeDef
   */
-HAL_StatusTypeDef CAN_SendData(CAN_HandleTypeDef *hcan, uint32_t stdId, uint8_t *dat)
+HAL_StatusTypeDef CAN_SendData(FDCAN_HandleTypeDef *hcan, uint32_t stdId, uint8_t *dat)
 {
-	CAN_TxHeaderTypeDef pHeader;
-	uint32_t txMailBox;
+	FDCAN_TxHeaderTypeDef tx_message;
 	
-	if((hcan->Instance != CAN1)&&(hcan->Instance != CAN2))
+	tx_message.IdType = FDCAN_STANDARD_ID;
+	tx_message.Identifier = stdId;
+	tx_message.DataLength = FDCAN_DLC_BYTES_8;
+	tx_message.ErrorStateIndicator = FDCAN_ESI_ACTIVE;
+	tx_message.BitRateSwitch = FDCAN_BRS_OFF;
+	tx_message.FDFormat = FDCAN_CLASSIC_CAN;
+	tx_message.TxFrameType = FDCAN_DATA_FRAME;
+	tx_message.MessageMarker = 0;
+	tx_message.TxEventFifoControl =FDCAN_NO_TX_EVENTS;
+	if (hcan->Instance->ECR!=0U)
 	{
-		return HAL_ERROR;
+		CLEAR_BIT(hcan->Instance->CCCR, FDCAN_CCCR_INIT);
 	}
-	
-	pHeader.StdId = stdId;
-	pHeader.IDE = CAN_ID_STD;
-	pHeader.RTR = CAN_RTR_DATA;
-	pHeader.DLC = 8;
-	
-	if(HAL_CAN_AddTxMessage(hcan, &pHeader, dat, &txMailBox) != HAL_OK)
-	{
-		return HAL_ERROR;
-	}
+	HAL_FDCAN_AddMessageToTxFifoQ(hcan, &tx_message, dat);
+
 	
 	return HAL_OK;
-	
 }
 /* rxData Handler [Weak] functions -------------------------------------------*/
 /**
@@ -237,48 +142,94 @@ __WEAK void CAN2_rxDataHandler(uint32_t rxId, uint8_t *rxBuf)
 }
 
 /**
- *  @brief  初始化CAN发送的ID等配置
+ *  @brief  [__WEAK] 需要在Protocol Layer中实现具体的 CAN2 处理协议
  */
-void HAL_CAN_TxHeadeInit(uint16_t ID)
+__WEAK void CAN3_rxDataHandler(uint32_t rxId, uint8_t *rxBuf)
 {
-	CAN_TxHeadeType.StdId = ID;
-	CAN_TxHeadeType.ExtId = 0x0000;
-	CAN_TxHeadeType.DLC = 8;
-	CAN_TxHeadeType.IDE = CAN_ID_STD;
-	CAN_TxHeadeType.RTR = CAN_RTR_DATA;
 }
 
-
 /**
-  * @brief  CAN滤波器初始化
+  * @brief  CAN1滤波器初始化
   * @param  
   * @retval 
   */
-void CAN_Filter_Init(void)
+void CAN1_Filter_Init(void)
 {
-	HAL_CAN_Init(&hcan1);
-	HAL_CAN_Init(&hcan2);
-	
-	CAN_FilterTypeDef can_filter_st;
-	can_filter_st.FilterFIFOAssignment = CAN_RX_FIFO0;	//使用FIFO0
-	can_filter_st.FilterActivation = ENABLE;			//使能滤波器
-	can_filter_st.FilterMode = CAN_FILTERMODE_IDMASK;	//设置滤波器模式
-	can_filter_st.FilterScale = CAN_FILTERSCALE_32BIT;	//设置比特数
-    can_filter_st.FilterIdHigh = 0x0000;				//高位ID
-	can_filter_st.FilterIdLow = 0x0000;					//低位ID
-	can_filter_st.FilterMaskIdHigh = 0x0000;			//高位掩码
-	can_filter_st.FilterMaskIdLow = 0x0000;				//低位掩码 注：此配置下没有过滤功能
-	
-	can_filter_st.FilterBank = 0;						//CAN1 过滤器组设置
-	can_filter_st.SlaveStartFilterBank = 14;			//CAN2 起始过滤器组设置，CAN2是CAN1的Slaver
-	HAL_CAN_ConfigFilter(&hcan1,&can_filter_st);		//应用配置到CAN1
-	HAL_CAN_Start(&hcan1);								//启动CAN1
-	/*使能CAN1中断*/
-	HAL_CAN_ActivateNotification(&hcan1, CAN_IT_RX_FIFO0_MSG_PENDING);
-	
-	can_filter_st.FilterBank = 14;						//CAN2 过滤器组设置
-	HAL_CAN_ConfigFilter(&hcan2,&can_filter_st);		//应用配置到CAN2
-	HAL_CAN_Start(&hcan2);								//启动CAN2
-	/*使能CAN2中断*/
-	HAL_CAN_ActivateNotification(&hcan2, CAN_IT_RX_FIFO0_MSG_PENDING);
+	FDCAN_FilterTypeDef sFilterConfig;
+  /* Configure Rx filter */	
+	sFilterConfig.IdType = FDCAN_STANDARD_ID;//扩展ID不接收
+  sFilterConfig.FilterIndex = 0;
+  sFilterConfig.FilterType = FDCAN_FILTER_MASK;
+  sFilterConfig.FilterConfig = FDCAN_FILTER_TO_RXFIFO0;
+  sFilterConfig.FilterID1 = 0x00000000; // 
+  sFilterConfig.FilterID2 = 0x00000000; // 
+	HAL_FDCAN_ConfigFilter(&hfdcan1, &sFilterConfig);
+
+		
+/* 全局过滤设置 */
+/* 接收到消息ID与标准ID过滤不匹配，不接受 */
+/* 接收到消息ID与扩展ID过滤不匹配，不接受 */
+/* 过滤标准ID远程帧 */ 
+/* 过滤扩展ID远程帧 */ 
+  HAL_FDCAN_ConfigGlobalFilter(&hfdcan1, FDCAN_REJECT, FDCAN_REJECT, FDCAN_FILTER_REMOTE, FDCAN_FILTER_REMOTE);
+	/* 开启RX FIFO0的新数据中断 */
+  HAL_FDCAN_ActivateNotification(&hfdcan1, FDCAN_IT_RX_FIFO0_NEW_MESSAGE, 0);
+  HAL_FDCAN_Start(&hfdcan1);
 }
+
+/**
+  * @brief  CAN2滤波器初始化
+  * @param  
+  * @retval 
+  */
+void CAN2_Filter_Init(void)
+{
+	FDCAN_FilterTypeDef sFilterConfig;
+  /* Configure Rx filter */
+  sFilterConfig.IdType =  FDCAN_STANDARD_ID;
+  sFilterConfig.FilterIndex = 0;
+  sFilterConfig.FilterType = FDCAN_FILTER_MASK;
+  sFilterConfig.FilterConfig = FDCAN_FILTER_TO_RXFIFO0;
+  sFilterConfig.FilterID1 = 0x00000000;
+  sFilterConfig.FilterID2 = 0x00000000;
+	HAL_FDCAN_ConfigFilter(&hfdcan2, &sFilterConfig);
+		
+/* 全局过滤设置 */
+/* 接收到消息ID与标准ID过滤不匹配，不接受 */
+/* 接收到消息ID与扩展ID过滤不匹配，不接受 */
+/* 过滤标准ID远程帧 */ 
+/* 过滤扩展ID远程帧 */ 
+  HAL_FDCAN_ConfigGlobalFilter(&hfdcan2, FDCAN_REJECT, FDCAN_REJECT, FDCAN_FILTER_REMOTE, FDCAN_FILTER_REMOTE);
+	/* 开启RX FIFO1的新数据中断 */
+  HAL_FDCAN_ActivateNotification(&hfdcan2, FDCAN_IT_RX_FIFO0_NEW_MESSAGE, 0);
+  HAL_FDCAN_Start(&hfdcan2);
+}
+
+/**
+  * @brief  CAN2滤波器初始化
+  * @param  
+  * @retval 
+  */
+void CAN3_Filter_Init(void)
+{
+	FDCAN_FilterTypeDef sFilterConfig;
+  /* Configure Rx filter */
+  sFilterConfig.IdType =  FDCAN_STANDARD_ID;
+  sFilterConfig.FilterIndex = 1;
+  sFilterConfig.FilterType = FDCAN_FILTER_MASK;
+  sFilterConfig.FilterConfig = FDCAN_FILTER_TO_RXFIFO1;
+  sFilterConfig.FilterID1 = 0x00000000;
+  sFilterConfig.FilterID2 = 0x00000000;
+	HAL_FDCAN_ConfigFilter(&hfdcan3, &sFilterConfig);
+		
+/* 全局过滤设置 */
+/* 接收到消息ID与标准ID过滤不匹配，不接受 */
+/* 接收到消息ID与扩展ID过滤不匹配，不接受 */
+/* 过滤标准ID远程帧 */ 
+/* 过滤扩展ID远程帧 */ 
+  HAL_FDCAN_ConfigGlobalFilter(&hfdcan3, FDCAN_REJECT, FDCAN_REJECT, FDCAN_FILTER_REMOTE, FDCAN_FILTER_REMOTE);
+	/* 开启RX FIFO1的新数据中断 */
+  HAL_FDCAN_ActivateNotification(&hfdcan3, FDCAN_IT_RX_FIFO1_NEW_MESSAGE, 0);
+  HAL_FDCAN_Start(&hfdcan3);
+}
+

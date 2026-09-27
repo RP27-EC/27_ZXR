@@ -15,7 +15,7 @@
 #include "rp_config.h"
 #include "pid.h"
 #include "drv_can.h"
-#include "motor_def.h"
+
 /* Exported typedef ----------------------------------------------------------*/
 #define _3508_TORQUE_CONSTANT     0.246f //3508加减速箱的扭矩常数，N*m/A
 #define _2006_TORQUE_CONSTANT     0.18f //2006的扭矩常数，N*m/A
@@ -38,18 +38,18 @@ typedef enum Motor_RM_Type
 
 typedef struct Motor_RM_Born_Info_struct_t
 {
-	 int8_t order_correction;
+	  int8_t order_correction;
 		
-	uint8_t rxId;//对应一拖四的序号0~3
+		uint8_t rxId;//对应一拖四的序号0~3
 	
-	uint32_t stdId;
+		uint32_t stdId;
 	
 	Motor_RM_Type_e type;//电机类型
 	
 #ifdef __STM32F4xx_HAL_H
     CAN_HandleTypeDef *hcan;//can口选择
 #endif
-
+	
 #ifdef STM32H7xx_HAL_H
     FDCAN_HandleTypeDef *hcan;//can口选择
 #endif
@@ -124,19 +124,19 @@ typedef struct Motor_RM_struct_t
 	
     Motor_RM_Rx_Info_t* rx_info;
 	
-	Motor_RM_Tx_Info_t* tx_info;
+		Motor_RM_Tx_Info_t* tx_info;
 
     Motor_RM_State_t* state;
 	
-	Motor_RM_Ctrl_Info_t* ctrl;
+		Motor_RM_Ctrl_Info_t* ctrl;
+    
+		void (*single_set_torque)(struct Motor_RM_struct_t *motor);
 	
-	void (*single_set_torque)(struct Motor_RM_struct_t *motor);
+		void (*single_set_speed)(struct Motor_RM_struct_t *motor);
 	
-	void (*single_set_speed)(struct Motor_RM_struct_t *motor);
+		void (*single_set_angle)(struct Motor_RM_struct_t *motor);
 	
-	void (*single_set_angle)(struct Motor_RM_struct_t *motor);
-	
-	 void (*rx)(struct Motor_RM_struct_t *motor, uint8_t *rxBuf);
+	  void (*rx)(struct Motor_RM_struct_t *motor, uint8_t *rxBuf);
 	
 	  void (*single_sleep)(struct Motor_RM_struct_t *motor);
 	

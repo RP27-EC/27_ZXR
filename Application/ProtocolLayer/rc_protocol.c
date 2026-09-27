@@ -1,7 +1,18 @@
-
+/**
+ * @file        rc_protocol.c
+ * @author      RobotPilots
+ * @Version     v1.1
+ * @brief       DT7&DR16 Rc Protocol.
+ * @update
+ *              v1.0(9-September-2020)
+ *              v1.1(24-October-2021)
+ *                  1.修改rc_potocol.c/.h->rc_protocol.c/.h 
+ */
+ 
 /* Includes ------------------------------------------------------------------*/
 #include "rc_protocol.h"
 #include "rp_math.h"
+
 #include "rc_sensor.h"
 
 
@@ -12,7 +23,6 @@ void keyboard_status_update(key_board_info_t *key);
 
 extern uint32_t micros(void);
 uint32_t tt1, tt2, ttp1;
-
 /* Private typedef -----------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 /* Exported variables --------------------------------------------------------*/
@@ -87,9 +97,7 @@ void rc_interrupt_update(rc_sensor_t *rc_sen)
  */
 void rc_sensor_update(rc_sensor_t *rc_sen, uint8_t *rxBuf)
 {
-
 	rc_sensor_info_t *rc_info = rc_sen->info;
-	rc_info->offline_cnt=0;
 	/* 遥控器 */
 	rc_info->ch0 = (rxBuf[0] | rxBuf[1] << 8) & 0x07FF;
 	rc_info->ch0 -= 1024;
@@ -102,15 +110,14 @@ void rc_sensor_update(rc_sensor_t *rc_sen, uint8_t *rxBuf)
 
 	rc_info->thumbwheel.value = ((int16_t)rxBuf[16] | ((int16_t)rxBuf[17] << 8)) & 0x07ff;
 	rc_info->thumbwheel.value -= 1024;
-
-	rc_info->s1.value = ((rxBuf[5] >> 4) & 0x000C) >> 2;
-	rc_info->s2.value = (rxBuf[5] >> 4) & 0x0003;	
-	/*遥控器限位置零*/
-	if(rc_sensor.info->ch3== -660)
+	if(abs(rc_info->thumbwheel.value)>660)
 	{
-		rc_sensor.info->ch3=0;
+		rc_info->thumbwheel.value=0;
 	}
 
+	rc_info->s1 = ((rxBuf[5] >> 4) & 0x000C) >> 2;
+	rc_info->s2 = (rxBuf[5] >> 4) & 0x0003;	
+	
 	/* 键鼠 */
 	rc_info->mouse_vx = rxBuf[6]  | (rxBuf[7 ] << 8);
 	rc_info->mouse_vy = rxBuf[8]  | (rxBuf[9 ] << 8);
@@ -136,7 +143,6 @@ void rc_sensor_update(rc_sensor_t *rc_sen, uint8_t *rxBuf)
   rc_info->V.value = 	KEY_PRESSED_V;
   rc_info->B.value = 	KEY_PRESSED_B;
 	
-	rc_info->offline_cnt = 0;
 	tt1 = tt2;
 	tt2 = micros();
 	ttp1 = tt2 - tt1;
@@ -208,7 +214,24 @@ void keyboard_status_update(key_board_info_t *key)
             {
                 key->status = short_press;
             }
+			
         } 
     }
 }
- 
+static uint8_t init_cnt = 0;
+/**
+ *	@brief	在串口2中解析遥控数据协议
+ */
+void USART5_rxDataHandler(uint8_t *rxBuf)
+{
+	// 更新遥控数据
+	if(init_cnt != 0)
+	rc_sensor.info->offline_cnt = 0;
+	else
+	init_cnt ++;
+	rc_sensor.update(&rc_sensor, rxBuf);
+	rc_sensor.check(&rc_sensor);
+	
+	rc_interrupt_update(&rc_sensor);
+	
+}

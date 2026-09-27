@@ -17,12 +17,6 @@ void ave_fil_init(ave_filter_t *ave_fil)
 	ave_fil->filter_times = 0;
 }
 
-/**
- * @brief 滑动窗口均值滤波
- * @param 直接定义均值滤波结构体，输入的值，窗口数组长度
- * @result 均值
- */
- 
 float ave_fil_update(ave_filter_t *ave_fil, float value, uint16_t max)
 {
 	if(max > ave_filter_times_max)

@@ -1,12 +1,21 @@
+/**
+ * @file        rp_device_config.h
+ * @author      RobotPilots
+ * @Version     v1.0
+ * @brief       RobotPilots Robots' Device Configuration.
+ * @update
+ *              v1.0(7-November-2021)  
+ */
 #ifndef __RP_DEVICE_CONFIG_H
 #define __RP_DEVICE_CONFIG_H
 
 /* Includes ------------------------------------------------------------------*/
-#include "stm32f4xx_hal.h"
+#include "stm32h7xx_hal.h"
 #include "stdbool.h"
 #include "rp_driver_config.h"
 
 /* Exported macro ------------------------------------------------------------*/
+
 /* Exported types ------------------------------------------------------------*/
 /* 设备层 --------------------------------------------------------------------*/
 /**
@@ -22,6 +31,16 @@ typedef enum {
 } dev_id_t;
 
 /**
+ *	@brief	电机设备id列表
+ *	@class	device
+ */
+typedef enum {
+	DEV_ID_CAN1_200 = 0,
+	DEV_ID_CAN2_200,
+	DEV_ID_CAN1_1FF,
+	DEV_ID_CAN2_1FF,
+} dev_motor_id_t;
+/**
  *	@brief	设备工作状态(通用)
  *	@class	device
  */
@@ -29,17 +48,6 @@ typedef enum {
 	DEV_ONLINE,
 	DEV_OFFLINE,
 } dev_work_state_t;
-
-
-/**
- * @brief 未初始化：DEV_RESET_NO 初始化完成:DEV_RESET_OK
- * 
- */
-typedef enum DEV_RESET_STATE
-{
-	DEV_RESET_NO,
-	DEV_RESET_OK,
-}Dev_Reset_State_e;
 
 /**
  *	@brief	错误代码(通用)
@@ -67,28 +75,32 @@ typedef enum {
 } dev_errno_t;
 
 typedef enum {
-	DAIL,		  //	CAN1     0x207	
-	IMAGE,        //	CAN1	 0x206
-	TELESCOPE,    //	CAN1	 0x205
-	
-	FRIC_B_UP,	//		CAN2	 0x201
-	FRIC_F_UP, 	//		CAN2	 0x202
-	FRIC_B_R, 	//  	CAN2	 0x203
-	FRIC_B_L,	//		CAN2	 0x204
-	FRIC_F_R, 	//		CAN2	 0x205
-	GIMB_P, 	//		CAN2	 0x206
-	FRIC_F_L,   //		CAN2	 0x207
-	
-	
-	RM_MOTOR_LIST,
-} dev_rm_motor_list_e;			  //  Yaw轴kt电机CAN1  0x142 2个包  
-									  //CAN1 底盘1个包
-									  //UI四个，整车信息1个（5ms发一次，也就是0.2个包）
-									  //收game_robot_status 0.01个包（10Hz），
-									  //power_heat_data0.05个包
-								      //shoot_data 子弹发射后下主控才发送，忽略不计
-								      //总共2+2+1+0.2+0.05+0
+	CHAS_LF,	//左前轮
+	CHAS_LB,	//左后轮
+	CHAS_RF,	//右前轮
+	CHAS_RB,	//右后轮
+	GIMB_P,		//云台pitch轴
+	GIMB_Y,		//云台yaw轴
+	FRIC_L,		//右摩擦轮
+	FRIC_R,		//左摩擦轮
+	DIAL,		//拨盘
+	MOTOR_LIST,
+} dev_motor_list_e;
 
-
+/**
+ *	@brief	设备结构体定义模板
+ *	@class	device
+ */
+typedef struct device {
+	void				        *info;		                                    // 自定义具体设备信息结构体
+	void				        *driver;	                                    // 自定义具体设备驱动结构体
+	void				        (*init)(struct device *self);	                // 设备初始化函数
+	void				        (*update)(struct device *self, uint8_t *rxBuf);	// 设备数据更新函数
+	void				        (*check)(struct device *self);	                // 设备数据检查函数
+	void				        (*heart_beat)(struct device *self);	            // 设备心跳包
+	volatile dev_work_state_t	work_state;	                                    // 设备工作状态
+	volatile dev_errno_t	  	errno;		                                    // 可自定义具体设备错误代码
+	const    dev_id_t		    	id;			                                // 设备id
+} device_t;
 
 #endif

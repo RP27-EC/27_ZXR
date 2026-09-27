@@ -64,4 +64,25 @@ void delay_ms(uint32_t ms)
 		delay_us(1000);
 }
 
+/* Define Exported Functions ---------------------------------------------------------------------------------------------------------------------------------------- */
+/*!
+ * @usage: 开启DWT模块
+ */
+void DWT_Init(void)
+{
+    if (!(CoreDebug->DEMCR & CoreDebug_DEMCR_TRCENA_Msk))
+    {
+        CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk; // 启用跟踪功能
+    }
+    
+    DWT->CYCCNT = 0;                        // 清零周期计数器
+    DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk;    // 启用周期计数器
+}
 
+/*!
+ * @usage: 获得时钟周期数
+ */
+uint32_t DWT_GetCycleCount(void)
+{
+    return DWT->CYCCNT;
+}

@@ -14,18 +14,14 @@
 #define __DRV_TIM_H
 
 /* Includes ------------------------------------------------------------------*/
-#include "stm32f4xx_hal.h"
+#include "stm32h7xx_hal.h"
 
 /* Exported types ------------------------------------------------------------*/
 /* Exported constants --------------------------------------------------------*/
 /* Exported macro ------------------------------------------------------------*/
 /* Exported functions --------------------------------------------------------*/
-//void Telescope_Up(void);
-//void Telescope_Down(void);
-//void Telescope_Sleep(void);
 void TIM1_Init(void);
 void TIM4_Init(void);
-
-
+void TIM3_Set_PWM(uint16_t compare);
 /* Servo functions */
 #endif

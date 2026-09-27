@@ -18,7 +18,7 @@
 #define __DRIVER_H
 
 /* Includes ------------------------------------------------------------------*/
-#include "stm32f4xx_hal.h"
+#include "stm32h7xx_hal.h"
 #include "stdbool.h"
 
 #include "drv_can.h"
@@ -28,6 +28,7 @@
 #include "drv_tick.h"
 #include "drv_tim.h"
 #include "drv_uart.h"
+#include "DWT.h"
 
 /* Exported macro ------------------------------------------------------------*/
 /* Exported types ------------------------------------------------------------*/

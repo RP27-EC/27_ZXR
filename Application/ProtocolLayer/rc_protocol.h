@@ -19,8 +19,7 @@
 /* Exported macro ------------------------------------------------------------*/
 /* Exported types ------------------------------------------------------------*/
 /* Exported functions --------------------------------------------------------*/
+void USART3_rxDataHandler(uint8_t *rxBuf);
 void keyboard_update(rc_sensor_info_t *info);
-void rc_interrupt_update(rc_sensor_t *rc_sen);
-void rc_sensor_init(rc_sensor_t *rc_sen);
 
 #endif

@@ -3,9 +3,8 @@
 
 #include "cmsis_os.h"
 #include "main.h"
-#include "device.h"
 
-void StartControlTask(void const * argument);
 
+void StartCtrlTask(void const * argument);
 
 #endif

@@ -139,7 +139,7 @@ void static Motor_ReceiveData(Motor_HT_t *motor, uint8_t *rxBuf)
 	motor_rx_info->encoder = uint_to_float((uint16_t)((rxBuf[1] << 8) | rxBuf[2]), HT_P_MIN, HT_P_MAX, 16);
 	motor_rx_info->speed = uint_to_float((uint16_t)((rxBuf[3] << 4) | (rxBuf[4] >> 4)), HT_V_MIN, HT_V_MAX, 12) * motor->born_info->order_correction;
 	motor_rx_info->torque_current = uint_to_float((uint16_t)(((rxBuf[4]&0x0F) << 8) | rxBuf[5]), HT_C_MIN, HT_C_MAX, 12);
-	motor_rx_info->torque = motor_rx_info->torque_current * HT_TORQUE_CONSTANT;
+	motor_rx_info->torque = motor_rx_info->torque_current * TORQUE_CONSTANT;
 	Encoder_to_Motor_Angle(motor);
 	motor_rx_info->motor_angle_sum_vi += motor_rx_info->speed * TIME_STEP;
 	motor->state->offline_cnt = 0;

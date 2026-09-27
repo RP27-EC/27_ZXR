@@ -1,12 +1,12 @@
 #ifndef __DM_MOTOR_H
 #define __DM_MOTOR_H
 
+#include "stm32h7xx_hal.h"
 #include "rp_config.h"
 #include "arm_math.h"
 #include "HT_Motor.h"
 #include "drv_can.h"
 #include "drv_tick.h"
-#include "motor_def.h"
 #include "rp_math.h"
 #ifndef __HT_MOTOR_H
 /*电机指令集*/
@@ -122,8 +122,6 @@ typedef struct Motor_DM_struct_t
 	Motor_DM_Tx_Info_t* tx_info;
 	
 	Motor_DM_State_t* state;
-
-
 	
 	void (*single_init)(struct Motor_DM_struct_t *motor);
 	

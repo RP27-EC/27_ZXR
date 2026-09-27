@@ -3,9 +3,9 @@
 
 void StartLedTask(void const * argument)
 {
-	led.state = LED_BLINK;       // ÉèÖÃÎªÉÁË¸Ä£Ê½ 
-  led.colour = LED_colour_red; // ºìµÆ 
-  led.blink_fre = 2;           // ÉÁË¸ÆµÂÊ£º2Hz (Ã¿ 500ms ÉÁË¸Ò»´Î)
+	led.state = LED_BLINK;       // è®¾ç½®ä¸ºé—ªçƒæ¨¡å¼ 
+  led.colour = LED_colour_red; // çº¢ç¯ 
+  led.blink_fre = 2;           // é—ªçƒé¢‘ç‡ï¼š2Hz (æ¯ 500ms é—ªçƒä¸€æ¬¡)
   for(;;)
   {		
 	  led_work(&led);

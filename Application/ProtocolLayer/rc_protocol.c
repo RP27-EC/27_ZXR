@@ -99,13 +99,13 @@ void rc_sensor_update(rc_sensor_t *rc_sen, uint8_t *rxBuf)
 {
 	rc_sensor_info_t *rc_info = rc_sen->info;
 	/* 遥控器 */
-	rc_info->ch0 = (rxBuf[0] | rxBuf[1] << 8) & 0x07FF;
+	rc_info->ch0 = (rxBuf[0] | rxBuf[1] << 8) & 0x07FF;                         //ch0是右摇杆左右
 	rc_info->ch0 -= 1024;
-	rc_info->ch1 = (rxBuf[1] >> 3 | rxBuf[2] << 5) & 0x07FF;
+	rc_info->ch1 = (rxBuf[1] >> 3 | rxBuf[2] << 5) & 0x07FF;                    //ch1是右摇杆上下
 	rc_info->ch1 -= 1024;
-	rc_info->ch2 = (rxBuf[2] >> 6 | rxBuf[3] << 2 | rxBuf[4] << 10) & 0x07FF;
+	rc_info->ch2 = (rxBuf[2] >> 6 | rxBuf[3] << 2 | rxBuf[4] << 10) & 0x07FF;   //ch2是左摇杆上下
 	rc_info->ch2 -= 1024;
-	rc_info->ch3 = (rxBuf[4] >> 1 | rxBuf[5] << 7) & 0x07FF;
+	rc_info->ch3 = (rxBuf[4] >> 1 | rxBuf[5] << 7) & 0x07FF;                    //ch3是左摇杆左右
 	rc_info->ch3 -= 1024;
 
 	rc_info->thumbwheel.value = ((int16_t)rxBuf[16] | ((int16_t)rxBuf[17] << 8)) & 0x07ff;

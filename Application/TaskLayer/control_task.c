@@ -13,11 +13,13 @@ void StartCtrlTask(void const * argument)
 
 	for(;;)
 	{
+		Chassis_Step();
+
 		Yaw_Motor.single_sleep(&Yaw_Motor);
 		Yaw_Motor.tx_info->torque = 0.f;
 		Yaw_Motor.single_set_torque(&Yaw_Motor);
 //	Back_Group.group_set_torque(&Back_Group);
 //	Front_Group.group_set_torque(&Front_Group);
-		osDelay(1);
+		osDelay(5);
 	}
 }

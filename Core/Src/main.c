@@ -118,10 +118,9 @@ int main(void)
   MX_UART8_Init();
   MX_UART9_Init();
   /* USER CODE BEGIN 2 */
-	/*CubeMX�����ʼ��UART5Ҫ��SPI2��ң�ز�������ʹ�ã���Ҫʹ��D-Cache*/
 	DEVICE_Init();
 	DRIVER_Init();
-
+  Chassis_Init();
   /* USER CODE END 2 */
 
   /* Init scheduler */

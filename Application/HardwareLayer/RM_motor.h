@@ -20,10 +20,10 @@
 #define _3508_TORQUE_CONSTANT     0.246f //3508加减速箱的扭矩常数，N*m/A
 #define _2006_TORQUE_CONSTANT     0.18f //2006的扭矩常数，N*m/A
 #define _3508_MAX_CURRENT         20.f    //3508输出最大电流，手册-20~20A
-#define _2006_MAX_CURRENT     		10.f //2006输出最大电流，手册-10~10A
+#define _2006_MAX_CURRENT     	  10.f //2006输出最大电流，手册-10~10A
 
 #define _6020_TORQUE_CONSTANT     1.f //6020的转速常数，rpm/V
-#define _6020_MAX_CURRENT         25000.f    //3508输出最大电流，手册-20~20A
+#define _6020_MAX_CURRENT         25000.f    //6020输出最大电流，手册-20~20A
 
 #define _3508_REDUCT_RATIO        (268.f/17.f)
 #define _2006_REDUCT_RATIO        (36.f/1.f)

@@ -12,7 +12,7 @@
 //整车宽度
 #define Car_Width 0.39990f
 //麦轮旋转臂
-#define ROTATE_R (Car_Length + Car_Width) / 2.0f
+#define ROTATE_R ((Car_Length + Car_Width) / 2.0f)
 //车体运动最大速度
 #define MAX_SPEED           1.2f    //单位：m/s
 //车体转向运动最大速度

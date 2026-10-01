@@ -172,10 +172,10 @@ static void Chassis_Inverse_Kinematics(void)
     float max_abs = 0.f;   //四个轮里绝对值最大的
     float k = 1.f;         //缩放系数
 
-    chassis.wheel_speed[0] =   (vx - vy - wz * Rl)/WHEEL_RADIUS;   // LF
-    chassis.wheel_speed[1] =  -(vx + vy + wz * Rl)/WHEEL_RADIUS;   // RF
-    chassis.wheel_speed[2] =   (vx + vy - wz * Rl)/WHEEL_RADIUS;   // LB
-    chassis.wheel_speed[3] =  -(vx - vy + wz * Rl)/WHEEL_RADIUS;   // RB
+    chassis.wheel_speed[0] =   (vx - vy - wz * ROTATE_R)/WHEEL_RADIUS;   // LF
+    chassis.wheel_speed[1] =  -(vx + vy + wz * ROTATE_R)/WHEEL_RADIUS;   // RF
+    chassis.wheel_speed[2] =   (vx + vy - wz * ROTATE_R)/WHEEL_RADIUS;   // LB
+    chassis.wheel_speed[3] =  -(vx - vy + wz * ROTATE_R)/WHEEL_RADIUS;   // RB
 
     for (int i = 0; i < 4; i++) {                       //等比限幅，超过最大速度时按比例限制
         float a = (chassis.wheel_speed[i] >= 0.f)

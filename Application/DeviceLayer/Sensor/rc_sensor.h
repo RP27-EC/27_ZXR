@@ -76,8 +76,8 @@
 /* 遥控摇杆通道偏移值 */
 #define		RC_SW1_VALUE				(rc_sensor_info.s1)
 #define		RC_SW2_VALUE				(rc_sensor_info.s2)
-#define		RC_LEFT_CH_LR_VALUE			(rc_sensor_info.ch2)
-#define		RC_LEFT_CH_UD_VALUE			(rc_sensor_info.ch3)
+#define		RC_LEFT_CH_LR_VALUE			(rc_sensor_info.ch2)    
+#define		RC_LEFT_CH_UD_VALUE			(rc_sensor_info.ch3)    
 #define		RC_RIGH_CH_LR_VALUE			(rc_sensor_info.ch0)
 #define		RC_RIGH_CH_UD_VALUE			(rc_sensor_info.ch1)
 #define		RC_THUMB_WHEEL_VALUE		(rc_sensor_info.thumbwheel)

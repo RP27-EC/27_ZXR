@@ -6,7 +6,7 @@
 #include "rc_sensor.h"
 #include "PID.h"
 
-#define MAX_WHEEL_SPEED_RAD 25.0f  //限制最大目标速度单位rad/s
+#define MAX_WHEEL_SPEED_RAD 40.0f  //限制最大目标速度 单位rad/s
 
 /*对外暴露的电机变量*/
 extern Motor_RM_t LF_Motor;

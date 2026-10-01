@@ -5,7 +5,7 @@
 
 #define TIME_STEP			0.001f//任务运行周期，单位：s
 
-#define WHEEL_RADIUS  0.0515f//驱动轮半径，单位：m
+#define WHEEL_RADIUS        0.0515f//驱动轮半径，单位：m
 
 #define WHEEL_REDUCT_RATIO        (7.f/1.f)//电机到轮毂的减速比
 //整车长度
@@ -17,9 +17,9 @@
 //整车旋转夹角（0~PI/2)
 #define theta_Rl 0.7259073169f
 //车体运动最大速度
-#define MAX_SPEED           2.5f    //单位：m/s
+#define MAX_SPEED           1.2f    //单位：m/s
 //车体转向运动最大速度
-#define MAX_SPIN_SPEED           13.0f    //单位：rad/s
+#define MAX_SPIN_SPEED           2.5f    //单位：rad/s
 //车体中心离地高度
 #define GRAVITY_HIGHT           0.18f    //单位：m
 //全车重量

@@ -14,12 +14,15 @@ void CAN1_rxDataHandler(uint32_t rxId, uint8_t *rxBuf)
 		case 0x201:
 		LF_Motor.rx(&LF_Motor, rxBuf);
 		break;
-		case 0x203:
-		RF_Motor.rx(&RF_Motor, rxBuf);
-		break;
+
 		case 0x202:
 		LB_Motor.rx(&LB_Motor, rxBuf);
 		break;
+
+		case 0x203:
+		RF_Motor.rx(&RF_Motor, rxBuf);
+		break;
+
 		case 0x204:
 		RB_Motor.rx(&RB_Motor, rxBuf);
 		break;

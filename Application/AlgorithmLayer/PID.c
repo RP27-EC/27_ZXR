@@ -12,8 +12,8 @@ void single_pid_ctrl(pid_ctrl_t *pid)
     pid->pout = pid->kp * pid->err;
     pid->iout = pid->ki * pid->integral;
     pid->dout = pid->kd * (pid->err - pid->last_err);
-		// 微分低通滤波
-		pid->dout = pid->a * pid->dout + (1.f - pid->a) * pid->last_dout;
+	// 微分低通滤波
+	//	pid->dout = pid->a * pid->dout + (1.f - pid->a) * pid->last_dout;
     // 累加pid输出值
     pid->out = pid->pout + pid->iout + pid->dout;
     pid->out = constrain(pid->out, -pid->out_max, pid->out_max);

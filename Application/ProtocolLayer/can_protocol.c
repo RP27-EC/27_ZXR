@@ -27,9 +27,6 @@ void CAN1_rxDataHandler(uint32_t rxId, uint8_t *rxBuf)
 		RB_Motor.rx(&RB_Motor, rxBuf);
 		break;
 
-		case 0x012:
-		Yaw_Motor.rx(&Yaw_Motor, rxBuf);
-		break;
 		default:
 			break;
 	}
@@ -44,7 +41,7 @@ void CAN2_rxDataHandler(uint32_t rxId, uint8_t *rxBuf)
 {
 	switch (rxId)
 	{
-		case 0x001:
+		case 0x12:
 		Yaw_Motor.rx(&Yaw_Motor, rxBuf);
 		break;
 		default:

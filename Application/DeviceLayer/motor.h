@@ -9,6 +9,7 @@
 #include "DM_motor.h"
 #include "motor_def.h"
 #include "drv_can.h"
+#include "config_gimbal.h"
 
 /*电机定义步骤------------------------------------------------*/
 //如果要增删改RM电机
@@ -18,13 +19,15 @@
 //4.rm_motor_t rm_motor[]数组里加电机总结构体
 //5.定义pid结构体以及在rm_motor_list_init里用mo tor_pid_init初始化pid结构体
 //如果要驱动电机就在motor_out里赋值，由CAN_Send统一发送
-/*电机ID宏定义------------------------------------------------*/
-#define ID_GIMB_P 		0x206 //0x1FF  23
-#define ID_GIMB_YAW 	0x142
+/* DM4310 CAN ID -------------------------------------------------------------*/
+/* 反馈帧 ID = MST_ID，由达妙调试助手设置，默认值见 config_gimbal.h ----------*/
+#define ID_GIMB_P 		GIMB_PITCH_MST_ID
+#define ID_GIMB_YAW 	GIMB_YAW_MST_ID
 
 extern  KT_motor_t kt_motor[1];
 extern  Motor_HT_t L_Wheel;
 extern  Motor_DM_t Yaw_Motor;
+extern  Motor_DM_t Pitch_Motor;
 extern  Motor_RM_t R_Fric;
 extern  Motor_RM_Group_t RM_Group;
 /* Exported functions --------------------------------------------------------*/

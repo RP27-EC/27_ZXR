@@ -21,7 +21,7 @@ typedef struct pid_ctrl {
 	float 	out_max;
 
 } pid_ctrl_t;
-void integral_to_zero(pid_ctrl_t *pid);
+void pid_clear(pid_ctrl_t *pid);       // 关控/离线时清积分，防止恢复时积分饱和
 void single_pid_ctrl(pid_ctrl_t *pid);
 
 #endif

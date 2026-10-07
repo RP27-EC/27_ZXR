@@ -68,10 +68,11 @@ Motor_HT_t L_Wheel =
 /*DM_start*/
 Motor_DM_Born_Info_t Yaw_Born_Info =
 {
-	.stdId = 0x001,//电机控制报文ID
+	.stdId = 0x002,//电机控制报文ID
 	
-	.hcan = &hcan1,//使用的Can总线
+	.hcan = &hcan2,//使用的Can总线
 
+	.order_correction = 1,//电机总角度的正方向，若实际转向相反改 -1
 };
 
 Motor_DM_Rx_Info_t Yaw_Rx_Info_t;
@@ -92,6 +93,35 @@ Motor_DM_t Yaw_Motor =
 	
 	.single_init = &DM_Single_Motor_Init,
 };
+
+Motor_DM_Born_Info_t Pitch_Born_Info =
+{
+	.stdId = 0x001,//电机控制报文ID
+	
+	.hcan = &hcan1,//使用的Can总线
+
+	.order_correction = 1,//电机总角度的正方向，若实际转向相反改 -1
+};
+
+Motor_DM_Rx_Info_t Pitch_Rx_Info_t;
+
+Motor_DM_Tx_Info_t Pitch_Tx_Info_t;
+
+Motor_DM_State_t Pitch_State_t;
+
+Motor_DM_t Pitch_Motor = 
+{
+	.born_info = &Pitch_Born_Info,
+	
+	.rx_info = &Pitch_Rx_Info_t,
+	
+	.tx_info = &Pitch_Tx_Info_t,
+	
+	.state = &Pitch_State_t,
+	
+	.single_init = &DM_Single_Motor_Init,
+};
+
 /*DM_end*/
 
 /*RM START*/
@@ -201,7 +231,7 @@ void kt_motor_list_init()
 void dm_motor_list_init()
 {
 	Yaw_Motor.single_init(&Yaw_Motor);
-	
+	Pitch_Motor.single_init(&Pitch_Motor);
 }
 
 void ht_motor_list_init()

@@ -81,7 +81,7 @@
           </BeforeMake>
           <AfterMake>
             <RunUserProg1>0</RunUserProg1>
-            <RunUserProg2>1</RunUserProg2>
+            <RunUserProg2>0</RunUserProg2>
             <UserProg1Name></UserProg1Name>
             <UserProg2Name></UserProg2Name>
             <UserProg1Dos16Mode>0</UserProg1Dos16Mode>
@@ -311,7 +311,7 @@
           </ArmAdsMisc>
           <Cads>
             <interw>1</interw>
-            <Optim>2</Optim>
+            <Optim>1</Optim>
             <oTime>0</oTime>
             <SplitLS>0</SplitLS>
             <OneElfS>1</OneElfS>
@@ -336,7 +336,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER,STM32F407xx,__CC_ARM,__TARGET_FPU_VFP,ARM_MATH_CM</Define>
               <Undefine></Undefine>
-              <IncludePath>../Core/Inc;../Drivers/STM32F4xx_HAL_Driver/Inc;../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy;../Middlewares/Third_Party/FreeRTOS/Source/include;../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS;../Middlewares/Third_Party/FreeRTOS/Source/portable/RVDS/ARM_CM4F;../Drivers/CMSIS/Device/ST/STM32F4xx/Include;../Drivers/CMSIS/Include;../Application/AlgorithmLayer;../Application/ConfigLayer;../Application/DeviceLayer;../Application/DriverLayer;../Application/DeviceLayer/Imu;../Application/DeviceLayer/Sensor;../Application/ModuleLayer;../Application/HardwareLayer;../Application/ProtocolLayer;../Application/TaskLayer;../Application/UserLayer;../Application/Support;../Application/ControlLayer;../Application/ServiceLayer;../Drivers/CMSIS/DSP;../USB_DEVICE/App;../USB_DEVICE/Target;../Middlewares/ST/STM32_USB_Device_Library/Core/Inc;../Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc;../Drivers/CMSIS/DSP/Include</IncludePath>
+              <IncludePath>../Core/Inc;../Drivers/STM32F4xx_HAL_Driver/Inc;../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy;../Middlewares/Third_Party/FreeRTOS/Source/include;../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS;../Middlewares/Third_Party/FreeRTOS/Source/portable/RVDS/ARM_CM4F;../Drivers/CMSIS/Device/ST/STM32F4xx/Include;../Drivers/CMSIS/Include;../Application/AlgorithmLayer;../Application/ConfigLayer;../Application/DeviceLayer;../Application/DriverLayer;../Application/DeviceLayer/Imu;../Application/DeviceLayer/Sensor;../Application/ModuleLayer;../Application/HardwareLayer;../Application/ProtocolLayer;../Application/TaskLayer;../Application/UserLayer;../Application/Support;../Application/ControlLayer;../Application/ServiceLayer;../Drivers/CMSIS/DSP;../USB_DEVICE/App;../USB_DEVICE/Target;../Middlewares/ST/STM32_USB_Device_Library/Core/Inc;../Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc;../Drivers/CMSIS/DSP/Include;..\Application\ModuleLayer</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -527,6 +527,13 @@
         </Group>
         <Group>
           <GroupName>Module</GroupName>
+          <Files>
+            <File>
+              <FileName>gimbal.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Application\ModuleLayer\gimbal.c</FilePath>
+            </File>
+          </Files>
         </Group>
         <Group>
           <GroupName>Service</GroupName>
@@ -634,6 +641,11 @@
               <FileType>1</FileType>
               <FilePath>..\Application\ProtocolLayer\rc_protocol.c</FilePath>
             </File>
+            <File>
+              <FileName>communicate.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Application\ProtocolLayer\communicate.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -738,6 +750,11 @@
               <FileName>rp_device_config.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\Application\ConfigLayer\rp_device_config.h</FilePath>
+            </File>
+            <File>
+              <FileName>config_gimbal.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Application\ConfigLayer\config_gimbal.h</FilePath>
             </File>
           </Files>
         </Group>

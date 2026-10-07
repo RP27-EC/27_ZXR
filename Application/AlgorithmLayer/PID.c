@@ -20,3 +20,9 @@ void single_pid_ctrl(pid_ctrl_t *pid)
     pid->last_err = pid->err;
 }
 
+/* 离线/关控状态下清积分 ---------------*/
+void pid_clear(pid_ctrl_t *pid)
+{
+    pid->integral = 0.f;
+}
+

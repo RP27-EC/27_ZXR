@@ -43,11 +43,9 @@
 #define GIMB_YAW_SPEED_MAX      12.0f
 #define GIMB_PITCH_SPEED_MAX    12.0f
 
-/* 角度软限位（rad）：限制目标角最大绝对值，防撞机械限位/缠绕线缆。
- *   Pitch 单圈有限转：目标角被 constrain 在 ±GIMB_PITCH_ANGLE_MAX。
- *   Yaw 已改为无限转（单圈 wrap，见 gimbal.c Gimbal_Target_Update），
- *   不读此限位，故 GIMB_YAW_ANGLE_MAX 当前不生效，
- *   保留作将来防缠绕总限位的可配置项。 */
+/* 角度软限位（rad）：限制目标角最大绝对值
+ *   Pitch 单圈有限转：目标角被 constrain 在 ±GIMB_PITCH_ANGLE_MAX
+ *   Yaw 无限转 GIMB_YAW_ANGLE_MAX 当前不生效 */
 #define GIMB_YAW_ANGLE_MAX      (3.1415926f)
 #define GIMB_PITCH_ANGLE_MAX    (3.1415926f)
 
@@ -69,8 +67,12 @@
    置 0 则遥控一恢复就立即接管 */
 #define GIMB_RC_RESUME_NEED_CENTER   1
 
-/* 云台使能拨杆：左拨杆(s1)上拨时才受控，其它档位一律卸力。 */
-#define GIMB_ENABLE_S1_POS           1
+/* 云台拨杆档位（左拨杆 s1）：RC_SW_UP=1 / RC_SW_MID=3 / RC_SW_DOWN=2
+ *   上档(1) = 目前单独控制云台
+ *   中档(3) = 机械模式
+ *   下档(2) = 卸力                                                               */
+#define GIMB_ENABLE_S1_POS           1      // 上档：单独控制云台
+#define GIMB_MECH_S1_POS             3      // 中档：机械模式（yaw 跟随底盘）
 
 /* 串级 PID 参数 --------------------------------------------------------------*/
 /* 外环（角度环）：输入 rad 误差，输出 rad/s 转速给定                           */
@@ -86,7 +88,7 @@
 #define GIMB_YAW_SP_KP          1.3f
 #define GIMB_YAW_SP_KI          0.01f
 #define GIMB_YAW_SP_KD          0.0f
-#define GIMB_YAW_SP_I_MAX       10.0f   // 积分限幅，抗饱和
+#define GIMB_YAW_SP_I_MAX       10.0f
 #define GIMB_YAW_SP_OUT_MAX     GIMB_YAW_TORQUE_MAX
 
 // Pitch 轴

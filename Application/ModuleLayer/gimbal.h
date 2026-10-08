@@ -28,11 +28,15 @@ typedef enum
 	GIMB_AXIS_CNT,
 } gimbal_axis_e;
 
-/* 云台工作模式 关控/掉线时卸力，恢复需摇杆回中 */
+/* 云台工作模式 关控/掉线时卸力，恢复需摇杆回中
+ *   由左拨杆 s1 档位决定（RC_SW_UP=1 / RC_SW_MID=3 / RC_SW_DOWN=2）：
+ *     上档 -> NORMAL 目前单独控制云台
+ *     中档 -> MECH   机械模式                                       */
 typedef enum
 {
 	GIMB_MODE_SLEEP = 0,   // 卸力
-	GIMB_MODE_NORMAL,      // 正常受控
+	GIMB_MODE_NORMAL,      // 单独控制云台（s1 上档）
+	GIMB_MODE_MECH,        // 机械模式（s1 中档）：yaw 跟随底盘，pitch 正常受控
 } gimbal_mode_t;
 
 /* 单轴状态

@@ -275,26 +275,36 @@ void Gimbal_Init(void)
 
 /**
   * @brief  云台控制
-  *         Yaw 用右摇杆左右 ch0，Pitch 用右摇杆上下 ch1
+  *         Pitch 用右摇杆上下 ch1
+  *         Yaw  用右摇杆左右 ch0
+  *
+  *    左拨杆 s1 三档（RC_SW_UP=1 / RC_SW_MID=3 / RC_SW_DOWN=2）：
+  *      上档 -> NORMAL 单独控制云台
+  *      中档 -> MECH   机械模式：yaw 跟随底盘，pitch 正常受控
+  *      下档 -> 卸力
   *
   *    关控保护：
-  *    1. 遥控失联/任一电机掉线/左拨杆未在使能档     -> SLEEP，清积分 + 卸力
-  *    2. 仍处于SLEEP时                            -> 必须先把四个摇杆回中才恢复 NORMAL，防暴冲
+  *    1. 遥控失联/任一电机掉线/拨杆未在受控档 -> SLEEP，清积分 + 卸力
+  *    2. 仍处于SLEEP时                       -> 必须先把四个摇杆回中才恢复，防暴冲
   *    SLEEP 期间照样下发零力矩帧，保证反馈链路不断。
-  *
-  *    左拨杆(s1)上拨单独控制云台
   */
 void Gimbal_Ctrl(void)
 {
-	uint8_t rc_ok    = (rc_sensor.work_state == DEV_ONLINE);
-	uint8_t motor_ok = Gimbal_Is_Motor_Online();
-	uint8_t sw_on    = 1;
+	uint8_t rc_ok      = (rc_sensor.work_state == DEV_ONLINE);
+	uint8_t motor_ok   = Gimbal_Is_Motor_Online();
+	uint8_t sw_rc      = 0;    // 上档：单独控制云台
+	uint8_t sw_mech    = 0;    // 中档：机械模式（yaw 跟随底盘）
+	uint8_t sw_on      = 0;
+	float   yaw_rc     = 0.f;  // 送给 yaw 的遥控量（机械模式保持为 0）
+	gimbal_mode_t next_mode    = GIMB_MODE_SLEEP; /* 本帧应处的模式 */
+	uint8_t      mode_changed  = 0;             /* 模式是否刚变化 */
 
-#if GIMB_ENABLE_S1_POS
-	sw_on = (rc_sensor_info.s1.value == (uint16_t)GIMB_ENABLE_S1_POS);
-#endif
+	/* 档位识别 */
+	sw_rc   = (rc_sensor_info.s1.value == (uint16_t)GIMB_ENABLE_S1_POS);
+	sw_mech = (rc_sensor_info.s1.value == (uint16_t)GIMB_MECH_S1_POS);
+	sw_on   = (sw_rc || sw_mech);
 
-	/* -------- 安全检查：关控 / 电机掉线 / 拨杆未在使能档 -------- */
+	/* -------- 安全检查：关控 / 电机掉线 / 拨杆未在受控档（上档或中档）-------- */
 	if (!rc_ok || !motor_ok || !sw_on)
 	{
 		g_gimbal_mode = GIMB_MODE_SLEEP;
@@ -302,7 +312,7 @@ void Gimbal_Ctrl(void)
 		return;
 	}
 
-	/* -------- 重开控防暴冲：SLEEP 下必须摇杆回中才恢复 -------- */
+	/* -------- 重开控防暴冲：从 SLEEP 恢复时必须先把四个摇杆回中 -------- */
 	if (g_gimbal_mode == GIMB_MODE_SLEEP)
 	{
 #if GIMB_RC_RESUME_NEED_CENTER
@@ -312,23 +322,39 @@ void Gimbal_Ctrl(void)
 			return;
 		}
 #endif
-		g_gimbal_mode = GIMB_MODE_NORMAL;   // 目标角已对齐，可直接接管
+	}
 
-		/* 上电后首次接管：把两轴目标角拉回各自的"零位姿态"
-		   （Pitch→水平, Yaw→中位），位置环平滑拉回。
-			inited 置 1 防止本帧 Target_Update 又把 target 对齐回实际角而覆盖掉
-			同时每次使能时yaw和pitch轴都归中 */
-   
+	/* -------- 档位 -> 模式 --------
+	赋值前的 g_gimbal_mode 是"上一帧模式"，与之比较即得切档边沿 */
+	next_mode     = sw_mech ? GIMB_MODE_MECH : GIMB_MODE_NORMAL;
+	mode_changed  = (next_mode != g_gimbal_mode);   /* 含"从 SLEEP 恢复"的情形 */
+	g_gimbal_mode = next_mode;
+
+	/* -------- 归中：进入任一受控模式时都归中 -------- */
+	if (mode_changed)
+	{
+		/* 切档/恢复瞬间清积分，避免过冲 */
+		pid_clear(&g_gimbal[GIMB_PITCH].ag_pid);
+		pid_clear(&g_gimbal[GIMB_PITCH].sp_pid);
+		pid_clear(&g_gimbal[GIMB_YAW].ag_pid);
+		pid_clear(&g_gimbal[GIMB_YAW].sp_pid);
+
 		g_gimbal[GIMB_PITCH].target_angle = GIMB_PITCH_LEVEL_ANGLE;
 		g_gimbal[GIMB_PITCH].inited       = 1;
 
 		g_gimbal[GIMB_YAW].target_angle = GIMB_YAW_CENTER_ANGLE;
 		g_gimbal[GIMB_YAW].inited       = 1;
-
 	}
 
-	/* -------- 正常控制 -------- */
-	Gimbal_Axis_Ctrl(GIMB_YAW,   RC_Normalize((int16_t)(GIMB_YAW_RC_DIR   * RC_RIGH_CH_LR_VALUE)));
+	/* -------- 正常控制 --------
+	   机械模式(MECH)：yaw轴跟随底盘
+	   单独控制云台(NORMAL)			*/
+	if (g_gimbal_mode != GIMB_MODE_MECH)
+	{
+		yaw_rc = RC_Normalize((int16_t)(GIMB_YAW_RC_DIR * RC_RIGH_CH_LR_VALUE));
+	}
+
+	Gimbal_Axis_Ctrl(GIMB_YAW,   yaw_rc);
 	Gimbal_Axis_Ctrl(GIMB_PITCH, RC_Normalize((int16_t)(GIMB_PITCH_RC_DIR * RC_RIGH_CH_UD_VALUE)));
 }
 

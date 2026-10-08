@@ -18,7 +18,7 @@ void StartMonitorTask(void const * argument)
     Wheel_Group.group_heartbeat(&Wheel_Group);    //电机心跳
 		rc_sensor.heart_beat(&rc_sensor);
 		imu_sensor.heart_beat(&imu_sensor.work_state);
-		Yaw_Motor.single_heart_beat(&Yaw_Motor);
+/* 		Yaw_Motor.single_heart_beat(&Yaw_Motor); */
 //		
 //		My_Judge_Realtime_Task(&My_Judge);
 //		cap.heartbeat(&cap);

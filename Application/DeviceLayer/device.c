@@ -23,9 +23,7 @@ void DEVICE_Init(void)
 	imu_sensor.init(&imu_sensor);
 //	
 	/*电机初始化*/
-	Front_Group.group_init(&Front_Group);
-	Back_Group.group_init(&Back_Group);
-	Yaw_Motor.single_init(&Yaw_Motor);
+/* 	Yaw_Motor.single_init(&Yaw_Motor); */
 
 	/*裁判系统初始化*/
 	My_Judge_Init();;

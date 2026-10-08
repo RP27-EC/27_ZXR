@@ -1353,12 +1353,12 @@
               <FileType>1</FileType>
               <FilePath>..\Application\ProtocolLayer\judge_protocol.c</FilePath>
             </File>
-                      <File>
+            <File>
               <FileName>communicate.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Application\ProtocolLayer\communicate.c</FilePath>
             </File>
-</Files>
+          </Files>
         </Group>
         <Group>
           <GroupName>Hardware</GroupName>

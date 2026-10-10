@@ -99,7 +99,7 @@ void imu_init(struct imu_struct *self)
 		// float init_quaternion[4] = {0.999019921, -0.0315267481, -0.0310692526};
 		float init_quaternion[4] = {0};
 		InitQuaternion(init_quaternion);
-		IMU_QuaternionEKF_Init(init_quaternion, 10, 0.001, 8000000, 1);
+		IMU_QuaternionEKF_Init(init_quaternion, 10, 0.001, 1000000, 0.9996);
 #endif //IMU_USE_EKF
 		
 		self->work_state.err_code = IMU_DATA_CALI;//开启陀螺仪校正使用IMU_DATA_CALI，关闭使用IMU_NONE_ERR

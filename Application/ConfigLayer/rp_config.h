@@ -16,9 +16,9 @@
 /* Exported macro ------------------------------------------------------------*/
 
 /*选择IMU解算算法为Mahony*/
-#define IMU_USE_MAHONY  1
+#define IMU_USE_MAHONY  0
 /*选择IMU解算算法为EKF*/
-#define IMU_USE_EKF 	0
+#define IMU_USE_EKF 	1
 
 
 /* Exported types ------------------------------------------------------------*/

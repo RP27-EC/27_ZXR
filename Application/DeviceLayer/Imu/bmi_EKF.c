@@ -37,7 +37,7 @@ arm_matrix_instance_f32 EKFDst;
  *      陀螺仪y轴与yaw轴之间的夹角，单位为度
  */
 gimbal_transform_t EKFgim_trans = {
-    .arz = 90.0f,
+    .arz = 180.0f,
     .ary = 0.0f,
     .arx = 0.0f,
     .trans = {0.0f},

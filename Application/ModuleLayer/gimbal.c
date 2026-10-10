@@ -28,17 +28,18 @@ gimbal_mode_t g_gimbal_mode = GIMB_MODE_SLEEP;   // 上电默认睡眠
 
 /* Private variables ---------------------------------------------------------*/
 
-/* 每轴的可配置量：遥控角速率、角度软限位、力矩限幅 */
+/* 每轴的可配置量：遥控角速率、目标角上下限、力矩限幅 */
 typedef struct
 {
 	float rc_rate;
-	float ang_limit;
+	float ang_min;      /* 目标角下限(rad)，仅Pitch用 */
+	float ang_max;      /* 目标角上限(rad)，仅Pitch用*/
 	float torque_max;
 } gimbal_axis_conf_t;
 
 static const gimbal_axis_conf_t g_axis_conf[GIMB_AXIS_CNT] = {
-	[GIMB_YAW]   = { GIMB_YAW_RC_RATE,   GIMB_YAW_ANGLE_MAX,   GIMB_YAW_TORQUE_MAX   },
-	[GIMB_PITCH] = { GIMB_PITCH_RC_RATE, GIMB_PITCH_ANGLE_MAX, GIMB_PITCH_TORQUE_MAX },
+	[GIMB_YAW]   = { GIMB_YAW_RC_RATE,   -GIMB_YAW_ANGLE_MAX,   GIMB_YAW_ANGLE_MAX,   GIMB_YAW_TORQUE_MAX   },
+	[GIMB_PITCH] = { GIMB_PITCH_RC_RATE, GIMB_PITCH_TARGET_MIN, GIMB_PITCH_TARGET_MAX, GIMB_PITCH_TORQUE_MAX },
 };
 
 /* 零位偏移
@@ -57,7 +58,7 @@ static float g_axis_zero_offset[GIMB_AXIS_CNT] = {
 static float Gimbal_Real_Angle(const gimbal_axis_t *axis)
 {
 	gimbal_axis_e idx = (gimbal_axis_e)(axis - &g_gimbal[0]);
-	/* 单圈方案：两轴统一用 motor_angle（[-π,π]），Yaw 无限转靠 target wrap 实现 */
+	/* 单圈方案：两轴统一用 motor_angle（[-π,π]） */
 	
 	return axis->motor->rx_info->motor_angle - g_axis_zero_offset[idx];
 }
@@ -101,7 +102,7 @@ static float RC_Normalize(int16_t ch)
 /**
   * @brief  目标角度累加
   */
-static void Gimbal_Target_Update(gimbal_axis_t *axis, float rc_norm, float rate, float limit)
+static void Gimbal_Target_Update(gimbal_axis_t *axis, float rc_norm, float rate, float ang_min, float ang_max)
 {
 	/* 首次运行或电机离线后恢复时，让目标角度对齐实际角度，避免回差导致暴冲 */
 	if (!axis->inited || axis->motor->state->status == DEV_OFFLINE)
@@ -113,7 +114,7 @@ static void Gimbal_Target_Update(gimbal_axis_t *axis, float rc_norm, float rate,
 
 	axis->target_angle += rc_norm * rate * GIMB_CONTROL_DT;
 
-	/* Yaw 轴可无限转（单圈 wrap 方案）：目标角折回 [-π, π)，配合 err-wrap 持续单向旋转。
+	/* Yaw 轴可无限转：目标角折回 [-π, π)，配合 err-wrap 持续单向旋转。
 	   Pitch 轴不进此分支，走 constrain 软限位。 */
 	if (axis == &g_gimbal[GIMB_YAW])
 	{
@@ -122,7 +123,7 @@ static void Gimbal_Target_Update(gimbal_axis_t *axis, float rc_norm, float rate,
 		return;
 	}
 
-	axis->target_angle  = constrain(axis->target_angle, -limit, limit);
+	axis->target_angle  = constrain(axis->target_angle, ang_min, ang_max);
 }
 
 /**
@@ -138,7 +139,7 @@ static float Gimbal_Axis_Calc(gimbal_axis_t *axis)
 	ag->measure = Gimbal_Real_Angle(axis);
 	ag->err     = ag->target - ag->measure;
 	/* 单圈角在 ±π 不连续：误差取最短路径，避免跨边界算成≈2π 反向暴冲
-	 * Yaw 轴无限转采用单圈 wrap 方案，feedback 与 target 均在 [-π,π]，同样需 err-wrap */
+	 * Yaw 轴无限转采用单圈方案，feedback 与 target 均在 [-π,π]，故进行处理*/
 
 	{
 		if      (ag->err >  (float)GIMB_PI) ag->err -= 2.0f * GIMB_PI;
@@ -207,7 +208,7 @@ static void Gimbal_Axis_Ctrl(gimbal_axis_e idx, float rc_norm)
 		return;
 	}
 
-	Gimbal_Target_Update(axis, rc_norm, conf->rc_rate, conf->ang_limit);
+	Gimbal_Target_Update(axis, rc_norm, conf->rc_rate, conf->ang_min, conf->ang_max);
 	torque = Gimbal_Axis_Calc(axis);
 
 	/* Pitch 叠加重力前馈*/

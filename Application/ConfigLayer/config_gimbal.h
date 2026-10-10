@@ -43,11 +43,12 @@
 #define GIMB_YAW_SPEED_MAX      12.0f
 #define GIMB_PITCH_SPEED_MAX    12.0f
 
-/* 角度软限位（rad）：限制目标角最大绝对值
- *   Pitch 单圈有限转：目标角被 constrain 在 ±GIMB_PITCH_ANGLE_MAX
- *   Yaw 无限转 GIMB_YAW_ANGLE_MAX 当前不生效 */
+/* 角度软限位（rad）：限制目标角范围
+ *   Yaw 无限转，GIMB_YAW_ANGLE_MAX 当前不生效
+ *   Pitch 有限转，非对称限位                   */
 #define GIMB_YAW_ANGLE_MAX      (3.1415926f)
-#define GIMB_PITCH_ANGLE_MAX    (3.1415926f)
+#define GIMB_PITCH_TARGET_MAX   ( 30.0f * 0.0174533f)
+#define GIMB_PITCH_TARGET_MIN   (-7.0f * 0.0174533f)
 
 /* 遥控器映射 -----------------------------------------------------------------*/
 /* 摇杆量 ±660 -> [-1, 1]，乘以下面的角速度得"目标角度的积分速率"             */

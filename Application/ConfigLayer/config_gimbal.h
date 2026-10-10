@@ -93,15 +93,15 @@
 #define GIMB_YAW_SP_OUT_MAX     GIMB_YAW_TORQUE_MAX
 
 // Pitch 轴
-#define GIMB_PITCH_AG_KP        10.0f
+#define GIMB_PITCH_AG_KP        15.0f
 #define GIMB_PITCH_AG_KI        0.0f
 #define GIMB_PITCH_AG_KD        0.0f
 #define GIMB_PITCH_AG_I_MAX     10.0f
 #define GIMB_PITCH_AG_OUT_MAX   GIMB_PITCH_SPEED_MAX
 
-#define GIMB_PITCH_SP_KP        1.5f
-#define GIMB_PITCH_SP_KI        0.01f
-#define GIMB_PITCH_SP_KD        0.0f
+#define GIMB_PITCH_SP_KP        2.5f
+#define GIMB_PITCH_SP_KI        0.02f
+#define GIMB_PITCH_SP_KD        0.01f
 #define GIMB_PITCH_SP_I_MAX     10.0f
 #define GIMB_PITCH_SP_OUT_MAX   GIMB_PITCH_TORQUE_MAX
 
@@ -115,7 +115,7 @@
  * 运行时作为前馈叠加到速度环（力矩）输出
  */
 #define GIMB_PITCH_GRAV_K          4.2072f   // 重力矩幅值 K
-#define GIMB_PITCH_GRAV_B         -2.496f    // 零点偏置 B
+#define GIMB_PITCH_GRAV_B         -1.496f    // 零点偏置 B
 #define GIMB_PITCH_GRAV_CENTER     0.0856f   // 重心位置角 θc(rad)
 
 /* Pitch 上电回中目标角（相对零位的"水平"角度）-----------------------------*/

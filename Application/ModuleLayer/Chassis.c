@@ -228,7 +228,7 @@ void Chassis_Step(void)
         /* 遥控器摇杆归一化到 -1~1，再乘最大速度 */
         chassis.vx =   rc_sensor_info.ch3 / 660.f * MAX_SPEED;           //前后：左摇杆上下
         chassis.vy =  -rc_sensor_info.ch2 / 660.f * MAX_SPEED;           //左右：左摇杆左右  注意遥控器左方向为负值需要负号修正
-        chassis.wz =  -rc_sensor_info.ch0 / 660.f * MAX_SPIN_SPEED;      //旋转：右摇杆左右  注意遥控器左方向为复制需要负号修正
+        chassis.wz =  -rc_sensor_info.ch0 / 660.f * MAX_SPIN_SPEED;      //旋转：右摇杆左右  注意遥控器左方向为负值需要负号修正
     }
     else
     {

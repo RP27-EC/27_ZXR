@@ -10,6 +10,7 @@
 #include "bmi.h"
 #include "rp_math.h"
 #include "ave_filter.h"
+#include "dsp_replace.h"
 
 #if IMU_USE_MAHONY==1
 /* Exported macro ------------------------------------------------------------*/

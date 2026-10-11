@@ -1,5 +1,6 @@
 #include "Chassis_Posture.h"
 #include "arm_math.h"
+#include "dsp_replace.h"
 static void Chassis_Posture_Update(Chassis_Posture_t* My_Chassis_Posture);
 static void Chassis_Slope_Update(Chassis_Posture_t* My_Chassis_Posture, float yaw, float pitch, float roll);
 Chassis_Posture_info_t Chassis_Posture_info;

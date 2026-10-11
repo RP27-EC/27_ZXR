@@ -16,6 +16,7 @@
  */
 #include "bmi_EKF.h"
 #include "rp_config.h"
+#include "dsp_replace.h"
 #if IMU_USE_EKF==1
 /* 重力加速度 */
 #define GRAVITY_EARTH  (9.80665f)

@@ -2,6 +2,7 @@
 #include "imu_sensor.h"
 #include "drv_gpio.h"
 #include "drv_tick.h"
+#include "dsp_replace.h"
 
 #if IMU_USE_EKF == 1
 #include "bmi_EKF.h"

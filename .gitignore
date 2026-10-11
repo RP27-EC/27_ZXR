@@ -1,4 +1,4 @@
-# ╠ЮрКиЗЁи╣джп╪Днд╪Ч
+# О©╫О©╫О©╫О©╫О©╫О©╫О©╫и╣О©╫О©╫п╪О©╫О©╫д╪О©╫
 *.o
 *.d
 *.crf
@@ -11,7 +11,7 @@
 *.lnp
 *.__i
 
-# Keil ╧╓Ёлаый╠нд╪Ч
+# Keil О©╫О©╫О©╫О©╫О©╫О©╫й╠О©╫д╪О©╫
 *.uvgui.*
 *.uvopt
 *.uvproj.bak
@@ -22,13 +22,13 @@
 *.htm
 *.iex
 
-# ╣ВйтфВоЮ╧ьнд╪Ч
+# О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫д╪О©╫
 JLinkLog.txt
 JLinkSettings.ini
 *.ini
 *.cdb
 
-# д©б╪╨Жбтё╗╠ЮрКиЗЁи╣джп╪Днд╪Ч╪пё╘
+# д©б╪О©╫О©╫О©╫тёО©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫и╣О©╫О©╫п╪О©╫О©╫д╪О©╫О©╫пёО©╫
 Objects/
 Listings/
 RTE/
@@ -36,9 +36,13 @@ _build/
 Debug/
 Release/
 
-# ╠Ю╪╜фВ/IDE аый╠нд╪Ч
+# О©╫Ю╪╜О©╫О©╫/IDE О©╫О©╫й╠О©╫д╪О©╫
 *.swp
 *~
 .vscode/
 .idea/
 *.uvguix.*
+.workbuddy/memory/2026-10-10.md
+
+# WorkBuddy project data (do not track)
+.workbuddy/

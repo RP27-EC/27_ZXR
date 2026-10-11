@@ -40,3 +40,7 @@ Release/
 *.swp
 *~
 .workbuddy/memory/2026-10-11.md
+
+# WorkBuddy project data & local reference (do not track)
+.workbuddy/
+_fix_reference/

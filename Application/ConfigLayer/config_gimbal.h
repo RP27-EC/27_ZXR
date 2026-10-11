@@ -114,7 +114,7 @@
  * 拟合（θ 为 pitch 当前单圈角 motor_angle，θc 为重力最大的重心位置角），
  * 运行时作为前馈叠加到速度环（力矩）输出
  */
-#define GIMB_PITCH_GRAV_K          4.0072f   // 重力矩幅值 K
+#define GIMB_PITCH_GRAV_K          4.2072f   // 重力矩幅值 K
 #define GIMB_PITCH_GRAV_B         -2.496f    // 零点偏置 B
 #define GIMB_PITCH_GRAV_CENTER     0.0856f   // 重心位置角 θc(rad)
 

@@ -30,8 +30,7 @@ void Board_Tx(void)
 	uint8_t buf[8];
 	uint8_t i;
 
-	/* 遥控离线：转发全 0 安全值（s1 = 0）。。
-	   避免"遥控已关、下板仍在转发旧值"导致上板误判在线、云台继续受控。 */
+	/* 遥控离线：转发全 0 安全值（s1 = 0） */
 	if (rc_sensor.work_state != DEV_ONLINE)
 	{
 		for (i = 0; i < 8; i++)
